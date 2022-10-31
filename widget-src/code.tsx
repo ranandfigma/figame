@@ -5,6 +5,8 @@ import left_arrow from "./assets/svg/left_arrow";
 import nodeAdd from "./assets/svg/node-add";
 import right_arrow from "./assets/svg/right_arrow";
 import up_arrow from "./assets/svg/up_arrow";
+import play_button from "./assets/svg/play-button";
+import { ScriptBlock } from "./script_block";
 
 const { widget } = figma
 const { useSyncedState, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget
@@ -62,6 +64,32 @@ function Widget() {
 
   const INCREMENT = 5;
 
+  // const moveOnUpArrow = new ScriptBlock({
+  //   onExecute: () => {},
+  //   targetNodeIdMap: new Map(),
+  //   displayName: "Move On Up Arrow",
+  //   displayColor: "#90C"
+  // })
+
+  // return (
+  //   <AutoLayout
+  //     verticalAlignItems={'center'}
+  //     spacing={8}
+  //     padding={16}
+  //     cornerRadius={8}
+  //     fill={'#FFFFFF'}
+  //     stroke={'#E6E6E6'}
+  //   >
+  //     <SVG src={play_button} width={50} height={50}
+  //     onClick={() => {
+  //         console.log('running script!')
+  //     }}/>
+  //     <Text>
+  //       {movableShapes}
+  //     </Text>
+  //   </AutoLayout>
+  // )
+
   return (
     <AutoLayout
       verticalAlignItems={'center'}
@@ -71,6 +99,10 @@ function Widget() {
       fill={'#FFFFFF'}
       stroke={'#E6E6E6'}
     >
+      <SVG src={play_button} width={50} height={50}
+      onClick={() => {
+          console.log('running script!')
+      }}/>
       <SVG src={nodeAdd} width={50} height={50}
       onClick={() => {
           console.log(figma.currentPage.selection);
