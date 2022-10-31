@@ -1,14 +1,47 @@
 // This is a counter widget with buttons to increment and decrement the number.
 
 import down_arrow from "./assets/svg/down_arrow";
+import left_arrow from "./assets/svg/left_arrow";
+import nodeAdd from "./assets/svg/node-add";
+import right_arrow from "./assets/svg/right_arrow";
+import up_arrow from "./assets/svg/up_arrow";
 
 const { widget } = figma
 const { useSyncedState, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget
 
-function Widget() {
-  const [count, setCount] = useSyncedState('count', 0)
+function Arrow({
+    svg,
+    movableShapeIds,
+    moveFn,
+}: {
+    svg: string;
+    movableShapeIds: string[];
+    moveFn: (node: FrameNode) => void
+}): SVG {
+    return <SVG
+        src={svg}
+    onClick={() => {
 
-  if (count !== 0) {
+          for (const node_id of movableShapeIds) {
+              const node = figma.getNodeById(node_id);
+              if (!node) {
+                  console.error(`no node ${node_id} found`);
+                  return;
+              }
+
+              if (node.type !== "FRAME") {
+                  console.error(`${node_id} is not a frame`);
+                  return;
+              }
+              moveFn(node);
+          }
+        }}/>
+}
+
+function Widget() {
+  const [movableShapes, setMovableShapes] = useSyncedState<string[]>('movableShape', []);
+
+  if (movableShapes.length > 0) {
     usePropertyMenu(
       [
         {
@@ -22,10 +55,12 @@ function Widget() {
         },
       ],
       () => {
-        setCount(0)
+        setMovableShapes([])
       },
     )
   }
+
+  const INCREMENT = 5;
 
   return (
     <AutoLayout
@@ -36,22 +71,16 @@ function Widget() {
       fill={'#FFFFFF'}
       stroke={'#E6E6E6'}
     >
-      <Rectangle width={30} height={30} />
-      <SVG
-        src={down_arrow}
-        onClick={() => {
-          setCount(count - 1)
-        }}
-      ></SVG>
-      <Text fontSize={32} width={42} horizontalAlignText={'center'}>
-        {count}
-      </Text>
-      <SVG
-        src={down_arrow}
-        onClick={() => {
-          setCount(count + 2)
-        }}
-      ></SVG>
+      <SVG src={nodeAdd} width={50} height={50}
+      onClick={() => {
+          console.log(figma.currentPage.selection);
+          setMovableShapes(figma.currentPage.selection.map(({id}) => id));
+      }}
+      />
+      <Arrow svg={down_arrow} moveFn={(node) => node.y += INCREMENT} movableShapeIds={movableShapes} />
+      <Arrow svg={up_arrow} moveFn={(node) => node.y -= INCREMENT} movableShapeIds={movableShapes} />
+      <Arrow svg={left_arrow} moveFn={(node) => node.x -= INCREMENT} movableShapeIds={movableShapes} />
+      <Arrow svg={right_arrow} moveFn={(node) => node.x += INCREMENT} movableShapeIds={movableShapes} />
     </AutoLayout>
   )
 }

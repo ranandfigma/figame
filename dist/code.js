@@ -41,14 +41,227 @@
 </g>
 <g>
 </g>
-</svg>`;
+</svg>
+`;
+
+  // widget-src/assets/svg/left_arrow.tsx
+  var left_arrow_default = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 54 54" style="enable-background:new 0 0 54 54;" xml:space="preserve">
+<g>
+	<path d="M0,0v54h54V0H0z M52,52H2V2h50V52z"/>
+	<path d="M23.707,36.293L15.414,28H40c0.552,0,1-0.447,1-1s-0.448-1-1-1H15.414l8.293-8.293l-1.414-1.414L11.586,27l10.707,10.707
+		L23.707,36.293z"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+`;
+
+  // widget-src/assets/svg/node-add.tsx
+  var node_add_default = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 511.999 511.999" style="enable-background:new 0 0 511.999 511.999;" xml:space="preserve">
+<polygon style="fill:#CFF09E;" points="96.838,469.769 109.281,64.007 415.16,330.906 228.277,336.788 "/>
+<g>
+	<path style="fill:#507C5C;" d="M424.072,320.69L118.194,53.791c-3.948-3.446-9.53-4.306-14.334-2.211
+		c-4.805,2.096-7.971,6.774-8.131,12.011L83.287,469.353c-0.171,5.571,3.084,10.68,8.208,12.876
+		c1.723,0.739,3.539,1.098,5.341,1.098c3.552,0,7.045-1.398,9.645-4.028l90.792-91.858l50.786,116.421
+		c1.439,3.296,4.126,5.886,7.473,7.199c1.594,0.625,3.274,0.937,4.954,0.937c1.848,0,3.695-0.378,5.421-1.131l64.367-28.079
+		c6.865-2.994,10.001-10.985,7.007-17.849l-31.989-73.329c-2.995-6.863-10.986-10.002-17.848-7.006
+		c-6.865,2.994-10.001,10.986-7.007,17.849l26.569,60.902l-39.514,17.237l-49.693-113.918l16.315-16.506l181.472-5.712
+		c5.571-0.175,10.468-3.742,12.343-8.992C429.801,330.216,428.272,324.355,424.072,320.69z M237.031,322.948l-50.268-115.235
+		c-2.995-6.863-10.986-10.002-17.848-7.006c-6.865,2.994-10.001,10.985-7.007,17.849l50.268,115.235L111.447,435.7l10.506-342.641
+		l258.297,225.38L237.031,322.948z"/>
+	<path style="fill:#507C5C;" d="M350.262,171.972H306.59c-7.487,0-13.558-6.07-13.558-13.558V121.38h-37.033
+		c-7.487,0-13.558-6.07-13.558-13.558V64.149c0-7.488,6.071-13.558,13.558-13.558h37.033V13.558C293.032,6.07,299.103,0,306.59,0
+		h43.672c7.487,0,13.558,6.07,13.558,13.558v37.033h37.033c7.487,0,13.558,6.07,13.558,13.558v43.672
+		c0,7.488-6.071,13.558-13.558,13.558h-50.591c-7.487,0-13.558-6.07-13.558-13.558s6.071-13.558,13.558-13.558h37.033V77.707
+		h-37.033c-7.487,0-13.558-6.07-13.558-13.558V27.116h-16.556v37.033c0,7.488-6.071,13.558-13.558,13.558h-37.033v16.556h37.033
+		c7.487,0,13.558,6.07,13.558,13.558v37.033h30.114c7.487,0,13.558,6.07,13.558,13.558
+		C363.821,165.901,357.749,171.972,350.262,171.972z"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+`;
+
+  // widget-src/assets/svg/right_arrow.tsx
+  var right_arrow_default = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 54 54" style="enable-background:new 0 0 54 54;" xml:space="preserve">
+<g>
+	<path d="M0,0v54h54V0H0z M52,52H2V2h50V52z"/>
+	<path d="M13,28h24.586l-8.293,8.293l1.414,1.414L41.414,27L30.707,16.293l-1.414,1.414L37.586,26H13c-0.552,0-1,0.447-1,1
+		S12.448,28,13,28z"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+`;
+
+  // widget-src/assets/svg/up_arrow.tsx
+  var up_arrow_default = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 54 54" style="enable-background:new 0 0 54 54;" xml:space="preserve">
+<g>
+	<path d="M0,0v54h54V0H0z M52,52H2V2h50V52z"/>
+	<path d="M26,15.914V40.5c0,0.553,0.448,1,1,1s1-0.447,1-1V15.914l8.293,8.293l1.414-1.414L27,12.086L16.293,22.793l1.414,1.414
+		L26,15.914z"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+`;
 
   // widget-src/code.tsx
   var { widget } = figma;
   var { useSyncedState, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget;
+  function Arrow({
+    svg,
+    movableShapeIds,
+    moveFn
+  }) {
+    return /* @__PURE__ */ figma.widget.h(SVG, {
+      src: svg,
+      onClick: () => {
+        for (const node_id of movableShapeIds) {
+          const node = figma.getNodeById(node_id);
+          if (!node) {
+            console.error(`no node ${node_id} found`);
+            return;
+          }
+          if (node.type !== "FRAME") {
+            console.error(`${node_id} is not a frame`);
+            return;
+          }
+          moveFn(node);
+        }
+      }
+    });
+  }
   function Widget() {
-    const [count, setCount] = useSyncedState("count", 0);
-    if (count !== 0) {
+    const [movableShapes, setMovableShapes] = useSyncedState("movableShape", []);
+    if (movableShapes.length > 0) {
       usePropertyMenu(
         [
           {
@@ -62,10 +275,11 @@
           }
         ],
         () => {
-          setCount(0);
+          setMovableShapes([]);
         }
       );
     }
+    const INCREMENT = 5;
     return /* @__PURE__ */ figma.widget.h(AutoLayout, {
       verticalAlignItems: "center",
       spacing: 8,
@@ -73,23 +287,30 @@
       cornerRadius: 8,
       fill: "#FFFFFF",
       stroke: "#E6E6E6"
-    }, /* @__PURE__ */ figma.widget.h(Rectangle, {
-      width: 30,
-      height: 30
-    }), /* @__PURE__ */ figma.widget.h(SVG, {
-      src: down_arrow_default,
+    }, /* @__PURE__ */ figma.widget.h(SVG, {
+      src: node_add_default,
+      width: 50,
+      height: 50,
       onClick: () => {
-        setCount(count - 1);
+        console.log(figma.currentPage.selection);
+        setMovableShapes(figma.currentPage.selection.map(({ id }) => id));
       }
-    }), /* @__PURE__ */ figma.widget.h(Text, {
-      fontSize: 32,
-      width: 42,
-      horizontalAlignText: "center"
-    }, count), /* @__PURE__ */ figma.widget.h(SVG, {
-      src: down_arrow_default,
-      onClick: () => {
-        setCount(count + 2);
-      }
+    }), /* @__PURE__ */ figma.widget.h(Arrow, {
+      svg: down_arrow_default,
+      moveFn: (node) => node.y += INCREMENT,
+      movableShapeIds: movableShapes
+    }), /* @__PURE__ */ figma.widget.h(Arrow, {
+      svg: up_arrow_default,
+      moveFn: (node) => node.y -= INCREMENT,
+      movableShapeIds: movableShapes
+    }), /* @__PURE__ */ figma.widget.h(Arrow, {
+      svg: left_arrow_default,
+      moveFn: (node) => node.x -= INCREMENT,
+      movableShapeIds: movableShapes
+    }), /* @__PURE__ */ figma.widget.h(Arrow, {
+      svg: right_arrow_default,
+      moveFn: (node) => node.x += INCREMENT,
+      movableShapeIds: movableShapes
     }));
   }
   widget.register(Widget);
