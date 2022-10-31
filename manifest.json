@@ -1,0 +1,11 @@
+{
+  "name": "Figame",
+  "id": "1168927732364374469",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "editorType": [
+    "figma"
+  ],
+  "containsWidget": true,
+  "widgetApi": "1.0.0"
+}
