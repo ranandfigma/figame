@@ -1,8 +1,51 @@
 "use strict";
 (() => {
+  // widget-src/assets/svg/down_arrow.tsx
+  var down_arrow_default = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 54 54" style="enable-background:new 0 0 54 54;" xml:space="preserve">
+<g>
+	<path d="M0,0v54h54V0H0z M52,52H2V2h50V52z"/>
+	<path d="M37.707,31.207l-1.414-1.414L28,38.086V13.5c0-0.553-0.448-1-1-1s-1,0.447-1,1v24.586l-8.293-8.293l-1.414,1.414L27,41.914
+		L37.707,31.207z"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>`;
+
   // widget-src/code.tsx
   var { widget } = figma;
-  var { useSyncedState, usePropertyMenu, AutoLayout, Text, SVG } = widget;
+  var { useSyncedState, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget;
   function Widget() {
     const [count, setCount] = useSyncedState("count", 0);
     if (count !== 0) {
@@ -30,12 +73,11 @@
       cornerRadius: 8,
       fill: "#FFFFFF",
       stroke: "#E6E6E6"
-    }, /* @__PURE__ */ figma.widget.h(SVG, {
-      src: `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="30" height="30" rx="15" fill="white"/>
-        <rect x="7.5" y="14.0625" width="15" height="1.875" fill="black" fill-opacity="0.8"/>
-        <rect x="0.5" y="0.5" width="29" height="29" rx="14.5" stroke="black" stroke-opacity="0.1"/>
-        </svg>`,
+    }, /* @__PURE__ */ figma.widget.h(Rectangle, {
+      width: 30,
+      height: 30
+    }), /* @__PURE__ */ figma.widget.h(SVG, {
+      src: down_arrow_default,
       onClick: () => {
         setCount(count - 1);
       }
@@ -44,13 +86,9 @@
       width: 42,
       horizontalAlignText: "center"
     }, count), /* @__PURE__ */ figma.widget.h(SVG, {
-      src: `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="30" height="30" rx="15" fill="white"/>
-        <path d="M15.9375 7.5H14.0625V14.0625H7.5V15.9375H14.0625V22.5H15.9375V15.9375H22.5V14.0625H15.9375V7.5Z" fill="black" fill-opacity="0.8"/>
-        <rect x="0.5" y="0.5" width="29" height="29" rx="14.5" stroke="black" stroke-opacity="0.1"/>
-        </svg>`,
+      src: down_arrow_default,
       onClick: () => {
-        setCount(count + 1);
+        setCount(count + 2);
       }
     }));
   }

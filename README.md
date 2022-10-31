@@ -34,3 +34,7 @@ We recommend writing TypeScript code using Visual Studio code:
    you reopen Visual Studio Code.
 
 That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+
+## SVG generation utils
+
+Run `npm run run-svg` to convert all the svg files in assets/ to code embeddable files in assets/svg with the same name. You can then import the files with `import down_arrow from "./assets/svg/down_arrow"; `
