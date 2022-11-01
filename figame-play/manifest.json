@@ -1,8 +1,0 @@
-{
-  "name": "figame-play",
-  "id": "1169002240641771074",
-  "api": "1.0.0",
-  "main": "code.js",
-  "editorType": ["figma"],
-  "ui": "ui.html"
-}
