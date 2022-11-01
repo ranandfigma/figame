@@ -42,3 +42,15 @@ Run `npm run run-svg` to convert all the svg files in assets/ to code embeddable
 ## Husky errors
 
 Run `npx husky-init` (and revert any git related changes it makes). Then prettier will automatically run pre-cmmit.
+
+## Build structure
+
+Plugins are weird and have to be html/ typescript text to use `figma.showUI`
+afaik. So the build process is a bit convoluted to allow us to modularly work
+with individual embedded_uis as real HTML/ TS files, but still embed them into
+the final code.ts. Most of the time you shouldn't have to think about this
+since `build.mjs` (`npm run build`) takes care of this for you, but here is how it works in general:
+
+- Compile all the index.ts files inside the `embedded_ui` folder to generate javascript
+- Inject the javascript into raw script tags in the HTML file.
+- Stringify the whole thing and place it in `embedded_ui/dist/{ui_name}/index.html.ts`.
