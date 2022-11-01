@@ -43,7 +43,7 @@ function Arrow({
 }
 
 function Plus({
-  nodeToScripts
+  nodeToScripts: nodeIdToScripts
 }: {
   nodeToScripts: SyncedMap<Script[]>
 }): SVG {
@@ -61,12 +61,12 @@ function Plus({
         else {
           const node = currSelection[0]
           console.log("Adding to node", node.id)
-          if (!nodeToScripts.get(node.id)) {
+          if (!nodeIdToScripts.get(node.id)) {
             console.log("Adding empty array for node", node.id)
-            nodeToScripts.set(node.id, [])
+            nodeIdToScripts.set(node.id, [])
           }
-          const currScripts = nodeToScripts.get(node.id)!
-          nodeToScripts.set(node.id, currScripts.concat(upTestScript)) // TODO FIX
+          const currScripts = nodeIdToScripts.get(node.id)!
+          nodeIdToScripts.set(node.id, currScripts.concat(upTestScript)) // TODO FIX
         }
       }}/>
 }
@@ -74,7 +74,7 @@ function Plus({
 
 function Widget() {
   const [movableShapes, setMovableShapes] = useSyncedState<string[]>('movableShape', []);
-  const nodeIdToScripts = useSyncedMap<Script[]>('nodeToScripts')
+  const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
 
   if (movableShapes.length > 0) {
     usePropertyMenu(
@@ -109,11 +109,15 @@ function Widget() {
       <Plus nodeToScripts={nodeIdToScripts}/>
       <SVG src={play_button} width={50} height={50}
       onClick={() => {
-        console.log('test')
-        console.log(nodeIdToScripts.entries)
+          // TODO: Need to test code below (couldn't test since setting wasn't working)
           nodeIdToScripts.entries().forEach((entry) => {
             const nodeId = entry[0]
             const scripts = entry[1]
+            scripts.forEach(script => {
+              if (script.triggers.includes(TriggerEventType.FrameUpdate)) {
+                script.blocks.forEach(block => block.onExecute(figma.getNodeById(nodeId)))
+              }
+            })
           });
       }}/>
       <SVG src={nodeAdd} width={50} height={50}

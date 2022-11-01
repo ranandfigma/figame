@@ -278,6 +278,36 @@
 </svg>
 `;
 
+  // widget-src/assets/logic/script.ts
+  var ScriptBlock = class {
+    constructor({
+      onExecute,
+      displayName,
+      displayColor
+    }) {
+      this.onExecute = onExecute;
+      this.targetNodeIdMap = /* @__PURE__ */ new Map();
+      this.displayName = displayName;
+      this.displayColor = displayColor;
+    }
+    addTargetNodeId(alias, nodeIds) {
+      this.targetNodeIdMap.set(alias, nodeIds);
+    }
+  };
+  var Script = class {
+    constructor({
+      blocks,
+      triggers,
+      aliases,
+      variables
+    }) {
+      this.blocks = blocks;
+      this.triggers = triggers;
+      this.aliases = aliases;
+      this.variables = variables;
+    }
+  };
+
   // widget-src/assets/svg/plus_symbol.tsx
   var plus_symbol_default = `<?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -359,36 +389,6 @@
 </svg>
 `;
 
-  // widget-src/assets/logic/script.ts
-  var ScriptBlock = class {
-    constructor({
-      onExecute,
-      displayName,
-      displayColor
-    }) {
-      this.onExecute = onExecute;
-      this.targetNodeIdMap = /* @__PURE__ */ new Map();
-      this.displayName = displayName;
-      this.displayColor = displayColor;
-    }
-    addTargetNodeId(alias, nodeIds) {
-      this.targetNodeIdMap.set(alias, nodeIds);
-    }
-  };
-  var Script = class {
-    constructor({
-      blocks,
-      triggers,
-      aliases,
-      variables
-    }) {
-      this.blocks = blocks;
-      this.triggers = triggers;
-      this.aliases = aliases;
-      this.variables = variables;
-    }
-  };
-
   // widget-src/assets/logic/test_scripts.ts
   var verticalMoveBlock = new ScriptBlock({
     onExecute: (node) => node.y += 5,
@@ -431,7 +431,7 @@
     });
   }
   function Plus({
-    nodeToScripts
+    nodeToScripts: nodeIdToScripts
   }) {
     return /* @__PURE__ */ figma.widget.h(SVG, {
       src: plus_symbol_default,
@@ -446,19 +446,19 @@
         } else {
           const node = currSelection[0];
           console.log("Adding to node", node.id);
-          if (!nodeToScripts.get(node.id)) {
+          if (!nodeIdToScripts.get(node.id)) {
             console.log("Adding empty array for node", node.id);
-            nodeToScripts.set(node.id, []);
+            nodeIdToScripts.set(node.id, []);
           }
-          const currScripts = nodeToScripts.get(node.id);
-          nodeToScripts.set(node.id, currScripts.concat(upTestScript));
+          const currScripts = nodeIdToScripts.get(node.id);
+          nodeIdToScripts.set(node.id, currScripts.concat(upTestScript));
         }
       }
     });
   }
   function Widget() {
     const [movableShapes, setMovableShapes] = useSyncedState("movableShape", []);
-    const nodeIdToScripts = useSyncedMap("nodeToScripts");
+    const nodeIdToScripts = useSyncedMap("nodeIdToScripts");
     if (movableShapes.length > 0) {
       usePropertyMenu(
         [
@@ -492,11 +492,14 @@
       width: 50,
       height: 50,
       onClick: () => {
-        console.log("test");
-        console.log(nodeIdToScripts.entries);
         nodeIdToScripts.entries().forEach((entry) => {
           const nodeId = entry[0];
           const scripts = entry[1];
+          scripts.forEach((script) => {
+            if (script.triggers.includes(0 /* FrameUpdate */)) {
+              script.blocks.forEach((block) => block.onExecute(figma.getNodeById(nodeId)));
+            }
+          });
         });
       }
     }), /* @__PURE__ */ figma.widget.h(SVG, {
