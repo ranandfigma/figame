@@ -7,7 +7,7 @@ export enum TriggerEventType {
 export class TriggerEvent {
     private type: TriggerEventType
     private name: string
-    private value: any
+    private value: object
 
     constructor({
         type,
@@ -16,7 +16,7 @@ export class TriggerEvent {
     }: {
         type: TriggerEventType,
         name: string,
-        value: any
+        value: object
     }) {
         this.type = type
         this.name = name
@@ -25,21 +25,25 @@ export class TriggerEvent {
 }
 
 export class ScriptBlock {
-    public onExecute: Function
+    public onExecute: string
+    public args: object
     private targetNodeIdMap: Map<string, string[]>
     private displayName: string
     private displayColor: string
 
     constructor({
         onExecute,
+        args,
         displayName,
         displayColor
     }: {
-        onExecute: Function,
+        onExecute: string,
+        args: object
         displayName: string,
         displayColor: string
     }) {
         this.onExecute = onExecute
+        this.args = args
         this.targetNodeIdMap = new Map()
         this.displayName = displayName
         this.displayColor = displayColor
@@ -51,25 +55,33 @@ export class ScriptBlock {
 }
 
 export class Script {
+    public nodeId?: string
     public blocks: ScriptBlock[]
     public triggers: TriggerEventType[]
     private aliases: Map<string, string>
-    private variables: Map<string, string>
+    private variables: object
 
     constructor({
+        nodeId,
         blocks,
         triggers,
         aliases,
         variables
     }: {
+        nodeId?: string
         blocks: ScriptBlock[]
         triggers: TriggerEventType[]
         aliases: Map<string, string>
-        variables: Map<string, string>
+        variables: object
     }) {
+        this.nodeId = nodeId
         this.blocks = blocks
         this.triggers = triggers
         this.aliases = aliases
         this.variables = variables
     }
+}
+
+export function executeScript(script: Script) {
+    script.blocks.forEach(block => new Function("nodeId", "args", block.onExecute)(script.nodeId, block.args))
 }

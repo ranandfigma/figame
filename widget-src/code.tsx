@@ -6,9 +6,9 @@ import nodeAdd from "./assets/svg/node-add";
 import right_arrow from "./assets/svg/right_arrow";
 import up_arrow from "./assets/svg/up_arrow";
 import play_button from "./assets/svg/play-button";
-import { Script, TriggerEventType } from "./assets/logic/script";
+import { executeScript, Script, TriggerEventType } from "./assets/logic/script";
 import plus_symbol from "./assets/svg/plus_symbol";
-import { upTestScript } from "./assets/logic/test_scripts";
+import { TestScript } from "./assets/logic/test_scripts";
 
 const { widget } = figma
 const { useSyncedState, useSyncedMap, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget
@@ -62,11 +62,9 @@ function Plus({
           const node = currSelection[0]
           console.log("Adding to node", node.id)
           if (!nodeIdToScripts.get(node.id)) {
-            console.log("Adding empty array for node", node.id)
-            nodeIdToScripts.set(node.id, [])
+            console.log("Adding upTestScript for node", node.id)
+            nodeIdToScripts.set(node.id, [new TestScript(node.id)])
           }
-          const currScripts = nodeIdToScripts.get(node.id)!
-          nodeIdToScripts.set(node.id, currScripts.concat(upTestScript)) // TODO FIX
         }
       }}/>
 }
@@ -109,13 +107,12 @@ function Widget() {
       <Plus nodeToScripts={nodeIdToScripts}/>
       <SVG src={play_button} width={50} height={50}
       onClick={() => {
-          // TODO: Need to test code below (couldn't test since setting wasn't working)
           nodeIdToScripts.entries().forEach((entry) => {
             const nodeId = entry[0]
             const scripts = entry[1]
             scripts.forEach(script => {
               if (script.triggers.includes(TriggerEventType.FrameUpdate)) {
-                script.blocks.forEach(block => block.onExecute(figma.getNodeById(nodeId)))
+                executeScript(script)
               }
             })
           });

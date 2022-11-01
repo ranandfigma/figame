@@ -282,10 +282,12 @@
   var ScriptBlock = class {
     constructor({
       onExecute,
+      args,
       displayName,
       displayColor
     }) {
       this.onExecute = onExecute;
+      this.args = args;
       this.targetNodeIdMap = /* @__PURE__ */ new Map();
       this.displayName = displayName;
       this.displayColor = displayColor;
@@ -296,17 +298,22 @@
   };
   var Script = class {
     constructor({
+      nodeId,
       blocks,
       triggers,
       aliases,
       variables
     }) {
+      this.nodeId = nodeId;
       this.blocks = blocks;
       this.triggers = triggers;
       this.aliases = aliases;
       this.variables = variables;
     }
   };
+  function executeScript(script) {
+    script.blocks.forEach((block) => new Function("nodeId", "args", block.onExecute)(script.nodeId, block.args));
+  }
 
   // widget-src/assets/svg/plus_symbol.tsx
   var plus_symbol_default = `<?xml version="1.0" encoding="iso-8859-1"?>
@@ -390,19 +397,39 @@
 `;
 
   // widget-src/assets/logic/test_scripts.ts
+  var horizontalMoveBlock = new ScriptBlock({
+    onExecute: "figma.getNodeById(nodeId).x += args['amount']",
+    args: { "amount": 5 },
+    displayName: "Move horizontally",
+    displayColor: "#FFFFFF"
+  });
   var verticalMoveBlock = new ScriptBlock({
-    onExecute: (node) => node.y += 5,
+    onExecute: "figma.getNodeById(nodeId).y += args['amount']",
+    args: { "amount": 10 },
     displayName: "Move vertically",
     displayColor: "#FFFFFF"
   });
-  var upTestScript = new Script({
-    blocks: [
-      verticalMoveBlock
-    ],
-    triggers: [0 /* FrameUpdate */],
-    aliases: /* @__PURE__ */ new Map(),
-    variables: /* @__PURE__ */ new Map()
+  var logBlock = new ScriptBlock({
+    onExecute: "console.log(args['value'])",
+    args: { "value": "test2" },
+    displayName: "Move vertically",
+    displayColor: "#FFFFFF"
   });
+  var TestScript = class extends Script {
+    constructor(nodeId) {
+      super({
+        blocks: [
+          horizontalMoveBlock,
+          verticalMoveBlock,
+          logBlock
+        ],
+        triggers: [0 /* FrameUpdate */],
+        aliases: /* @__PURE__ */ new Map(),
+        variables: {}
+      });
+      this.nodeId = nodeId;
+    }
+  };
 
   // widget-src/code.tsx
   var { widget } = figma;
@@ -447,11 +474,9 @@
           const node = currSelection[0];
           console.log("Adding to node", node.id);
           if (!nodeIdToScripts.get(node.id)) {
-            console.log("Adding empty array for node", node.id);
-            nodeIdToScripts.set(node.id, []);
+            console.log("Adding upTestScript for node", node.id);
+            nodeIdToScripts.set(node.id, [new TestScript(node.id)]);
           }
-          const currScripts = nodeIdToScripts.get(node.id);
-          nodeIdToScripts.set(node.id, currScripts.concat(upTestScript));
         }
       }
     });
@@ -497,7 +522,7 @@
           const scripts = entry[1];
           scripts.forEach((script) => {
             if (script.triggers.includes(0 /* FrameUpdate */)) {
-              script.blocks.forEach((block) => block.onExecute(figma.getNodeById(nodeId)));
+              executeScript(script);
             }
           });
         });
