@@ -38,3 +38,7 @@ That's it! Visual Studio Code will regenerate the JavaScript file every time you
 ## SVG generation utils
 
 Run `npm run run-svg` to convert all the svg files in assets/ to code embeddable files in assets/svg with the same name. You can then import the files with `import down_arrow from "./assets/svg/down_arrow"; `
+
+## Husky errors
+
+Run `npx husky-init` (and revert any git related changes it makes). Then prettier will automatically run pre-cmmit.
