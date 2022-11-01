@@ -25,7 +25,7 @@ export class TriggerEvent {
 }
 
 export class ScriptBlock {
-    private onExecute: Function
+    public onExecute: Function
     private targetNodeIdMap: Map<string, string[]>
     private displayName: string
     private displayColor: string
@@ -51,8 +51,8 @@ export class ScriptBlock {
 }
 
 export class Script {
-    private blocks: ScriptBlock[]
-    private triggers: TriggerEventType[]
+    public blocks: ScriptBlock[]
+    public triggers: TriggerEventType[]
     private aliases: Map<string, string>
     private variables: Map<string, string>
 

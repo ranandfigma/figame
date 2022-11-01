@@ -6,10 +6,12 @@ import nodeAdd from "./assets/svg/node-add";
 import right_arrow from "./assets/svg/right_arrow";
 import up_arrow from "./assets/svg/up_arrow";
 import play_button from "./assets/svg/play-button";
-import { ScriptBlock } from "./assets/logic/script";
+import { Script, TriggerEventType } from "./assets/logic/script";
+import plus_symbol from "./assets/svg/plus_symbol";
+import { upTestScript } from "./assets/logic/test_scripts";
 
 const { widget } = figma
-const { useSyncedState, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget
+const { useSyncedState, useSyncedMap, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget
 
 function Arrow({
     svg,
@@ -40,8 +42,39 @@ function Arrow({
         }}/>
 }
 
+function Plus({
+  nodeToScripts
+}: {
+  nodeToScripts: SyncedMap<Script[]>
+}): SVG {
+  return <SVG
+      src={plus_symbol}
+      width={50} height={50}
+      onClick={() => {
+        const currSelection = figma.currentPage.selection
+        if (currSelection.length < 1) {
+          console.log("Nothing selected to add script to")
+        }
+        else if (currSelection.length > 1) {
+          console.log("More than 1 item selected")
+        }
+        else {
+          const node = currSelection[0]
+          console.log("Adding to node", node.id)
+          if (!nodeToScripts.get(node.id)) {
+            console.log("Adding empty array for node", node.id)
+            nodeToScripts.set(node.id, [])
+          }
+          const currScripts = nodeToScripts.get(node.id)!
+          nodeToScripts.set(node.id, currScripts.concat(upTestScript)) // TODO FIX
+        }
+      }}/>
+}
+
+
 function Widget() {
   const [movableShapes, setMovableShapes] = useSyncedState<string[]>('movableShape', []);
+  const nodeIdToScripts = useSyncedMap<Script[]>('nodeToScripts')
 
   if (movableShapes.length > 0) {
     usePropertyMenu(
@@ -73,9 +106,15 @@ function Widget() {
       fill={'#FFFFFF'}
       stroke={'#E6E6E6'}
     >
+      <Plus nodeToScripts={nodeIdToScripts}/>
       <SVG src={play_button} width={50} height={50}
       onClick={() => {
-          console.log('running script!')
+        console.log('test')
+        console.log(nodeIdToScripts.entries)
+          nodeIdToScripts.entries().forEach((entry) => {
+            const nodeId = entry[0]
+            const scripts = entry[1]
+          });
       }}/>
       <SVG src={nodeAdd} width={50} height={50}
       onClick={() => {

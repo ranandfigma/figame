@@ -278,9 +278,135 @@
 </svg>
 `;
 
+  // widget-src/assets/svg/plus_symbol.tsx
+  var plus_symbol_default = `<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 490 490" style="enable-background:new 0 0 490 490;" xml:space="preserve">
+<g>
+	<g>
+		<g>
+			<path d="M227.8,174.1v53.7h-53.7c-9.5,0-17.2,7.7-17.2,17.2s7.7,17.2,17.2,17.2h53.7v53.7c0,9.5,7.7,17.2,17.2,17.2
+				s17.1-7.7,17.1-17.2v-53.7h53.7c9.5,0,17.2-7.7,17.2-17.2s-7.7-17.2-17.2-17.2h-53.7v-53.7c0-9.5-7.7-17.2-17.1-17.2
+				S227.8,164.6,227.8,174.1z"/>
+			<path d="M71.7,71.7C25.5,118,0,179.5,0,245s25.5,127,71.8,173.3C118,464.5,179.6,490,245,490s127-25.5,173.3-71.8
+				C464.5,372,490,310.4,490,245s-25.5-127-71.8-173.3C372,25.5,310.5,0,245,0C179.6,0,118,25.5,71.7,71.7z M455.7,245
+				c0,56.3-21.9,109.2-61.7,149s-92.7,61.7-149,61.7S135.8,433.8,96,394s-61.7-92.7-61.7-149S56.2,135.8,96,96s92.7-61.7,149-61.7
+				S354.2,56.2,394,96S455.7,188.7,455.7,245z"/>
+		</g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+	<g>
+	</g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+`;
+
+  // widget-src/assets/logic/script.ts
+  var ScriptBlock = class {
+    constructor({
+      onExecute,
+      displayName,
+      displayColor
+    }) {
+      this.onExecute = onExecute;
+      this.targetNodeIdMap = /* @__PURE__ */ new Map();
+      this.displayName = displayName;
+      this.displayColor = displayColor;
+    }
+    addTargetNodeId(alias, nodeIds) {
+      this.targetNodeIdMap.set(alias, nodeIds);
+    }
+  };
+  var Script = class {
+    constructor({
+      blocks,
+      triggers,
+      aliases,
+      variables
+    }) {
+      this.blocks = blocks;
+      this.triggers = triggers;
+      this.aliases = aliases;
+      this.variables = variables;
+    }
+  };
+
+  // widget-src/assets/logic/test_scripts.ts
+  var verticalMoveBlock = new ScriptBlock({
+    onExecute: (node) => node.y += 5,
+    displayName: "Move vertically",
+    displayColor: "#FFFFFF"
+  });
+  var upTestScript = new Script({
+    blocks: [
+      verticalMoveBlock
+    ],
+    triggers: [0 /* FrameUpdate */],
+    aliases: /* @__PURE__ */ new Map(),
+    variables: /* @__PURE__ */ new Map()
+  });
+
   // widget-src/code.tsx
   var { widget } = figma;
-  var { useSyncedState, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget;
+  var { useSyncedState, useSyncedMap, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget;
   function Arrow({
     svg,
     movableShapeIds,
@@ -304,8 +430,35 @@
       }
     });
   }
+  function Plus({
+    nodeToScripts
+  }) {
+    return /* @__PURE__ */ figma.widget.h(SVG, {
+      src: plus_symbol_default,
+      width: 50,
+      height: 50,
+      onClick: () => {
+        const currSelection = figma.currentPage.selection;
+        if (currSelection.length < 1) {
+          console.log("Nothing selected to add script to");
+        } else if (currSelection.length > 1) {
+          console.log("More than 1 item selected");
+        } else {
+          const node = currSelection[0];
+          console.log("Adding to node", node.id);
+          if (!nodeToScripts.get(node.id)) {
+            console.log("Adding empty array for node", node.id);
+            nodeToScripts.set(node.id, []);
+          }
+          const currScripts = nodeToScripts.get(node.id);
+          nodeToScripts.set(node.id, currScripts.concat(upTestScript));
+        }
+      }
+    });
+  }
   function Widget() {
     const [movableShapes, setMovableShapes] = useSyncedState("movableShape", []);
+    const nodeIdToScripts = useSyncedMap("nodeToScripts");
     if (movableShapes.length > 0) {
       usePropertyMenu(
         [
@@ -332,12 +485,19 @@
       cornerRadius: 8,
       fill: "#FFFFFF",
       stroke: "#E6E6E6"
-    }, /* @__PURE__ */ figma.widget.h(SVG, {
+    }, /* @__PURE__ */ figma.widget.h(Plus, {
+      nodeToScripts: nodeIdToScripts
+    }), /* @__PURE__ */ figma.widget.h(SVG, {
       src: play_button_default,
       width: 50,
       height: 50,
       onClick: () => {
-        console.log("running script!");
+        console.log("test");
+        console.log(nodeIdToScripts.entries);
+        nodeIdToScripts.entries().forEach((entry) => {
+          const nodeId = entry[0];
+          const scripts = entry[1];
+        });
       }
     }), /* @__PURE__ */ figma.widget.h(SVG, {
       src: node_add_default,
