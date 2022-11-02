@@ -2,7 +2,7 @@ import { NodeState } from "./node";
 
 // Widget to UI messages.
 export enum WidgetToUiMessageType {
-  NodeState = "WidgetState",
+  NodeState = "NodeState",
   a = "a",
 }
 
