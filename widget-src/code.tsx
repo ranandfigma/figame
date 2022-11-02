@@ -53,12 +53,10 @@ function Plus({
 function Widget() {
   initFunctionMap()
   const nodeStateById = useSyncedMap<NodeState>("nodeState");
-  const [movableShapes, setMovableShapes] = useSyncedState<string[]>('movableShape', []);
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
 
   useEffect(() => {
     figma.ui.onmessage = (message) => {
-      console.log("message", message);
       if (message.type === "nodeUpdate") {
         const node = figma.getNodeById(message.nodeId);
         if (node?.type === "FRAME") {
@@ -81,6 +79,7 @@ function Widget() {
       } else if (message.type === "tick") {
         for (const [nodeId, nodeState] of nodeStateById.entries()) {
           const node = figma.getNodeById(nodeId);
+          const scripts = nodeIdToScripts.get(nodeId);
           if (node?.type !== "FRAME") {
             console.error("non frame object in nodes");
             return;
@@ -110,10 +109,16 @@ function Widget() {
 
                 const otherRect = AxisAlignedGameRectangle.fromFrameNode(otherNode);
                 const inCollision = nodeRect.inCollision(otherRect);
-
                 if (!inCollision) {
                     continue;
                 }
+
+                const collisionScripts = scripts?.filter((s) => s.triggers.includes(TriggerEventType.OnCollision));
+
+                for (const collisionScript of collisionScripts || []) {
+                    executeScript(collisionScript);
+                }
+
 
                 let velocityX_new = prevState.velocityX;
                 let velocityY_new = prevState.velocityY;
