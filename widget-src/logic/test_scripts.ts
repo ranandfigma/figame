@@ -16,6 +16,36 @@ const logBlock = new ScriptBlock({
     args: {},
 })
 
+const customBlock = new ScriptBlock({
+    onExecute: FunctionName.Custom,
+    args: {
+        js: `
+            (nodeId, context) => {
+                console.log('collision handler');
+                const otherNodeId = context.collisionContext.otherNodeId;
+                const otherNode = figma.getNodeById(otherNodeId);
+                const gameNode = context.gameNode;
+                switch (otherNode.name) {
+                    case 'Top':
+                    case 'Bottom':
+                        gameNode.updateNodeState({
+                            key: 'velocityY',
+                            value: -gameNode.nodeState.velocityY,
+                        });
+                        break;
+                    case 'Right':
+                    case 'Left':
+                        gameNode.updateNodeState({
+                            key: 'velocityX',
+                            value: -gameNode.nodeState.velocityX,
+                        });
+                        break;
+                }
+            }
+        `,
+    }
+});
+
 export class TestScript extends Script {
     constructor(nodeId: string) {
         super({
@@ -31,5 +61,19 @@ export class TestScript extends Script {
             variables: {}
         })
         this.nodeId = nodeId
+    }
+}
+
+export class CollisionScript extends Script {
+    constructor(nodeId: string) {
+        super({
+            blocks: [
+                customBlock,
+            ],
+            triggers: [TriggerEventType.OnCollision],
+            aliases: new Map(),
+            variables: {},
+        })
+        this.nodeId = nodeId;
     }
 }
