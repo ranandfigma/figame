@@ -53,7 +53,9 @@ function Plus({
       width={50} height={50}
       onClick={() => {
         return new Promise((resolve) => {
-          figma.showUI(scriptPanelHtml);
+          // Currently opens script panel but doesn't do anything with it.
+          // Promise only really adds a test script for the selected node
+          figma.showUI(scriptPanelHtml); 
           const currSelection = figma.currentPage.selection
           if (currSelection.length < 1) {
             console.log("Nothing selected to add script to")
