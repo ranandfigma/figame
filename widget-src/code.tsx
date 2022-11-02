@@ -7,10 +7,10 @@ import editPanelHtml from "./embedded_ui/dist/edit_panel/index.html";
 import playPanelHtml from "./embedded_ui/dist/play_panel/index.html";
 import scriptPanelHtml from "./embedded_ui/dist/script_panel/index.html";
 import { WidgetToUiMessageType } from "./messages";
-import { defaultNodeState, NodeState } from "./node";
+import { defaultNodeState, GameNode, NodeState } from "./node";
 import { FPS } from "./consts";
 import { Script } from "./logic/script";
-import { TestScript } from "./logic/test_scripts";
+import { CollisionScript, TestScript } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
@@ -126,6 +126,7 @@ function Plus({
               registerScriptForNodeId(arrowUpScript, node.id)
               registerScriptForNodeId(arrowLeftScript, node.id)
               registerScriptForNodeId(arrowRightScript, node.id)
+              registerScriptForNodeId(new CollisionScript(node.id), node.id);
             }
           }
         })
@@ -190,6 +191,7 @@ function Widget() {
         for (const [nodeId, nodeState] of nodeStateById.entries()) {
           const node = figma.getNodeById(nodeId);
           const scripts = nodeIdToScripts.get(nodeId);
+          const collisionScripts = scripts?.filter((s) => s.triggers.find(t => t.type === TriggerEventType.OnCollision)) || [];
           if (node?.type !== "FRAME") {
             console.error("non frame object in nodes");
             return;
@@ -197,8 +199,7 @@ function Widget() {
           node.x += nodeState.velocityX / FPS;
           node.y += nodeState.velocityY / FPS;
 
-          if (nodeState.collisionProps?.canCollide) {
-              // turn a different color depending on the CollisionState.
+          if (nodeState.collisionProps?.canCollide && collisionScripts.length) {
               // do a pairwise comparison against every other node to see if we are in collision.
               const nodeRect = AxisAlignedGameRectangle.fromFrameNode(node);
 
@@ -223,32 +224,22 @@ function Widget() {
                     continue;
                 }
 
-                scripts?.filter((s) => {
-                  s.triggers.forEach((trigger) => {
-                    if (doesTriggerMatch(trigger, TriggerEventType.OnCollision)) {
-                      executeScript(s)
-                    }
-                  })
-                });
-
-                let velocityX_new = prevState.velocityX;
-                let velocityY_new = prevState.velocityY;
-                switch (otherNode.name) {
-                    case 'Top':
-                    case 'Bottom':
-                        velocityY_new = -velocityY_new;
-                        break;
-                    case 'Right':
-                    case 'Left':
-                        velocityX_new = -velocityX_new;
-                        break;
+                const gameNode = new GameNode(node.id, node.name, prevState);
+                for (const collisionScript of collisionScripts) {
+                    executeScript(collisionScript, {
+                        gameNode,
+                        collisionContext: {
+                            otherNodeId,
+                        },
+                    });
                 }
-
-                nodeStateById.set(node.id, {
-                        ...prevState,
-                        velocityX: velocityX_new,
-                        velocityY: velocityY_new,
-                        });
+                const nodeUpdates = gameNode.getNodeUpdates();
+                for (const update of nodeUpdates) {
+                    (prevState as any)[update.key] = update.value;
+                }
+                console.log('updates', nodeUpdates);
+                nodeStateById.set(node.id, prevState);
+                gameNode.clearNodeUpdates();
               }
           }
         }

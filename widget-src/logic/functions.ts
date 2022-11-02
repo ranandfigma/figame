@@ -1,11 +1,22 @@
+import { GameNode } from "../node";
+
+export type Context = {
+    gameNode: GameNode;
+    collisionContext?: {
+        otherNodeId: string;
+    }
+}
+
 export const functionNameToImplMap = new Map<
     FunctionName,
-    (args: any, nodeId?: string) => void
+    (args: any, nodeId?: string, context?: Context, ) => void
 >()
 
 export enum FunctionName {
     MoveHorizontal = 'move-horizontal',
     MoveVertical = 'move-vertical',
+    SetVelocity = 'set-velocity',
+    Custom = 'custom', // write your own javascript code.
     Debug = 'debug'
 }
 

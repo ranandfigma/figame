@@ -1,4 +1,4 @@
-import { FunctionName, functionNameToImplMap } from "./functions"
+import { Context, FunctionName, functionNameToImplMap } from "./functions"
 
 export enum TriggerEventType {
     FrameUpdate,
@@ -41,7 +41,7 @@ export const doesTriggerMatch = (trigger: TriggerEvent, type: TriggerEventType, 
 
 export class ScriptBlock {
     public onExecute: FunctionName
-    public args: object
+    public args: any;
     private targetNodeIdMap: Map<string, string[]>
 
     constructor({
@@ -89,10 +89,13 @@ export class Script {
     }
 }
 
-export function executeScript(script: Script) {
+export function executeScript(script: Script, context?: Context) {
     script.blocks.forEach(block => {
-        if (functionNameToImplMap.has(block.onExecute)) {
-            functionNameToImplMap.get(block.onExecute)!(block.args, script.nodeId);
-        }
+        if (block.onExecute === FunctionName.Custom) {
+            const fn = (0, eval)(block.args.js);
+            fn(script.nodeId, context);
+        } else if (functionNameToImplMap.has(block.onExecute)) {
+            functionNameToImplMap.get(block.onExecute)!(block.args, script.nodeId, context);
+        }     
     })
 }
