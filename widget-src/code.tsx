@@ -13,6 +13,7 @@ import { Script } from "./logic/script";
 import { TestScript } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { FunctionName, initFunctionMap } from "./logic/functions";
+import { AxisAlignedGameRectangle } from "./rectangle";
 
 const { widget } = figma;
 const { AutoLayout, SVG, useEffect, useSyncedMap, useSyncedState } = widget;
@@ -134,7 +135,6 @@ function Plus({
 function Widget() {
   initFunctionMap()
   const nodeStateById = useSyncedMap<NodeState>("nodeState");
-  const [movableShapes, setMovableShapes] = useSyncedState<string[]>('movableShape', []);
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
 
   useEffect(() => {
@@ -167,7 +167,6 @@ function Widget() {
     }
 
     figma.ui.onmessage = (message) => {
-      // console.log("message", message);
       if (message.type === "nodeUpdate") {
         const node = figma.getNodeById(message.nodeId);
         if (node?.type === "FRAME") {
@@ -178,6 +177,10 @@ function Widget() {
             version: (prevState?.version || 0) + 1,
             velocityX: message.velocityX,
             velocityY: message.velocityY,
+            collisionProps: {
+                canCollide: true,
+                static: false,
+            }
           });
         } else {
           console.error("not a frame");
@@ -186,12 +189,68 @@ function Widget() {
       } else if (message.type === "tick") {
         for (const [nodeId, nodeState] of nodeStateById.entries()) {
           const node = figma.getNodeById(nodeId);
+          const scripts = nodeIdToScripts.get(nodeId);
           if (node?.type !== "FRAME") {
             console.error("non frame object in nodes");
             return;
           }
           node.x += nodeState.velocityX / FPS;
           node.y += nodeState.velocityY / FPS;
+
+          if (nodeState.collisionProps?.canCollide) {
+              // turn a different color depending on the CollisionState.
+              // do a pairwise comparison against every other node to see if we are in collision.
+              const nodeRect = AxisAlignedGameRectangle.fromFrameNode(node);
+
+              const prevState = nodeStateById.get(node.id);
+              if (!prevState) {
+                  console.error('no prev state');
+                  return;
+              }
+              for (const [otherNodeId, nodeState] of nodeStateById.entries()) {
+                  if (otherNodeId === nodeId) {
+                      continue;
+                  }
+
+                  const otherNode = figma.getNodeById(otherNodeId)
+                  if (otherNode?.type !== "FRAME") {
+                      continue;
+                  }
+
+                const otherRect = AxisAlignedGameRectangle.fromFrameNode(otherNode);
+                const inCollision = nodeRect.inCollision(otherRect);
+                if (!inCollision) {
+                    continue;
+                }
+
+                scripts?.filter((s) => {
+                  s.triggers.forEach((trigger) => {
+                    if (doesTriggerMatch(trigger, TriggerEventType.OnCollision)) {
+                      executeScript(s)
+                    }
+                  })
+                });
+
+                let velocityX_new = prevState.velocityX;
+                let velocityY_new = prevState.velocityY;
+                switch (otherNode.name) {
+                    case 'Top':
+                    case 'Bottom':
+                        velocityY_new = -velocityY_new;
+                        break;
+                    case 'Right':
+                    case 'Left':
+                        velocityX_new = -velocityX_new;
+                        break;
+                }
+
+                nodeStateById.set(node.id, {
+                        ...prevState,
+                        velocityX: velocityX_new,
+                        velocityY: velocityY_new,
+                        });
+              }
+          }
         }
 
         runAllFrameTriggerScripts()
