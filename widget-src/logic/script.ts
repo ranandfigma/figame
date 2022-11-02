@@ -9,23 +9,34 @@ export enum TriggerEventType {
 }
 
 export class TriggerEvent {
-    private type: TriggerEventType
-    private name: string
-    private value: object
+    public type: TriggerEventType
+    public conditions: string[]
 
     constructor({
         type,
-        name,
-        value
+        conditions
     }: {
         type: TriggerEventType,
-        name: string,
-        value: object
+        conditions?: string[]
     }) {
         this.type = type
-        this.name = name
-        this.value = value
+        this.conditions = conditions || []
     }
+}
+
+export const doesTriggerMatch = (trigger: TriggerEvent, type: TriggerEventType, conditions: string[] = []) => {
+    if (type !== trigger.type) return false
+    if (conditions.length !== trigger.conditions.length) {
+        return false
+    } else {
+        for (let i = 0; i < trigger.conditions.length; i++) {
+            if (!(conditions.includes(trigger.conditions[i]))) {
+                return false
+            }
+        }
+    }
+
+    return true
 }
 
 export class ScriptBlock {
@@ -53,7 +64,7 @@ export class ScriptBlock {
 export class Script {
     public nodeId?: string
     public blocks: ScriptBlock[]
-    public triggers: TriggerEventType[]
+    public triggers: TriggerEvent[]
     private aliases: Map<string, string>
     private variables: object
 
@@ -66,7 +77,7 @@ export class Script {
     }: {
         nodeId?: string
         blocks: ScriptBlock[]
-        triggers: TriggerEventType[]
+        triggers: TriggerEvent[]
         aliases: Map<string, string>
         variables: object
     }) {

@@ -1,7 +1,7 @@
 // This is a counter widget with buttons to increment and decrement the number.
 
 import nodeAdd from "./assets/svg/node-add";
-import { executeScript, ScriptBlock, TriggerEventType } from "./logic/script";
+import { doesTriggerMatch, executeScript, ScriptBlock, TriggerEvent, TriggerEventType } from "./logic/script";
 import playButton from "./assets/svg/play-button";
 import editPanelHtml from "./embedded_ui/dist/edit_panel/index.html";
 import playPanelHtml from "./embedded_ui/dist/play_panel/index.html";
@@ -12,7 +12,7 @@ import { FPS } from "./consts";
 import { Script } from "./logic/script";
 import { TestScript } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
-import { initFunctionMap } from "./logic/functions";
+import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
 
 const { widget } = figma;
@@ -43,7 +43,89 @@ function Plus({
             console.log("Adding to node", node.id)
             if (!nodeIdToScripts.get(node.id)) {
               console.log("Adding upTestScript for node", node.id)
-              nodeIdToScripts.set(node.id, [new TestScript(node.id)])
+              // nodeIdToScripts.set(node.id, [new TestScript(node.id)])
+
+              const registerScriptForNodeId = (script: Script, nodeId: string) => {
+                if (nodeIdToScripts.has(nodeId)) {
+                  nodeIdToScripts.set(node.id, [...nodeIdToScripts.get(node.id)!, script])
+                } else {
+                  nodeIdToScripts.set(node.id, [script])
+                }
+              }
+
+              const arrowDownCondition = ['ArrowDown']
+              const arrowDownScript = new Script({
+                nodeId: node.id,
+                triggers: [new TriggerEvent({
+                  type: TriggerEventType.KeyDown,
+                  conditions: arrowDownCondition
+                })],
+                blocks: [
+                  new ScriptBlock({
+                    onExecute: FunctionName.MoveVertical,
+                    args: {'delta': 10}
+                  })
+                ],
+                aliases: new Map(),
+                variables: {}
+              })
+
+
+              const arrowUpCondition = ['ArrowUp']
+              const arrowUpScript = new Script({
+                nodeId: node.id,
+                triggers: [new TriggerEvent({
+                  type: TriggerEventType.KeyDown,
+                  conditions: arrowUpCondition
+                })],
+                blocks: [
+                  new ScriptBlock({
+                    onExecute: FunctionName.MoveVertical,
+                    args: {'delta': -10}
+                  })
+                ],
+                aliases: new Map(),
+                variables: {}
+              })
+
+              const arrowLeftCondition = ['ArrowLeft']
+              const arrowLeftScript = new Script({
+                nodeId: node.id,
+                triggers: [new TriggerEvent({
+                  type: TriggerEventType.KeyDown,
+                  conditions: arrowLeftCondition
+                })],
+                blocks: [
+                  new ScriptBlock({
+                    onExecute: FunctionName.MoveHorizontal,
+                    args: {'delta': -10}
+                  })
+                ],
+                aliases: new Map(),
+                variables: {}
+              })
+
+              const arrowRightCondition = ['ArrowRight']
+              const arrowRightScript = new Script({
+                nodeId: node.id,
+                triggers: [new TriggerEvent({
+                  type: TriggerEventType.KeyDown,
+                  conditions: arrowRightCondition
+                })],
+                blocks: [
+                  new ScriptBlock({
+                    onExecute: FunctionName.MoveHorizontal,
+                    args: {'delta': 10}
+                  })
+                ],
+                aliases: new Map(),
+                variables: {}
+              })
+
+              registerScriptForNodeId(arrowDownScript, node.id)
+              registerScriptForNodeId(arrowUpScript, node.id)
+              registerScriptForNodeId(arrowLeftScript, node.id)
+              registerScriptForNodeId(arrowRightScript, node.id)
             }
           }
         })
@@ -56,6 +138,34 @@ function Widget() {
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
 
   useEffect(() => {
+    const runAllFrameTriggerScripts = () => {
+      nodeIdToScripts.entries().forEach((entry) => {
+        const scripts = entry[1]
+        scripts.forEach(script => {
+          script.triggers.forEach((trigger: TriggerEvent) => {
+            if (doesTriggerMatch(trigger, TriggerEventType.FrameUpdate)) {
+              executeScript(script)
+            }
+          })
+        })
+      });
+    }
+
+    const runAllKeyDownScriptsForCode = (keyCode: string) => {
+      const keyCodeCondition = [keyCode]
+
+      nodeIdToScripts.entries().forEach((entry) => {
+        const scripts = entry[1]
+        scripts.forEach(script => {
+          script.triggers.forEach((trigger) => {
+            if (doesTriggerMatch(trigger, TriggerEventType.KeyDown, keyCodeCondition)) {
+              executeScript(script)
+            }
+          })
+        })
+      });
+    }
+
     figma.ui.onmessage = (message) => {
       if (message.type === "nodeUpdate") {
         const node = figma.getNodeById(message.nodeId);
@@ -113,12 +223,13 @@ function Widget() {
                     continue;
                 }
 
-                const collisionScripts = scripts?.filter((s) => s.triggers.includes(TriggerEventType.OnCollision));
-
-                for (const collisionScript of collisionScripts || []) {
-                    executeScript(collisionScript);
-                }
-
+                scripts?.filter((s) => {
+                  s.triggers.forEach((trigger) => {
+                    if (doesTriggerMatch(trigger, TriggerEventType.OnCollision)) {
+                      executeScript(s)
+                    }
+                  })
+                });
 
                 let velocityX_new = prevState.velocityX;
                 let velocityY_new = prevState.velocityY;
@@ -141,6 +252,13 @@ function Widget() {
               }
           }
         }
+
+        runAllFrameTriggerScripts()
+      } else if (message.type === "keydown") {
+        console.log('received keydown', {message})
+        runAllKeyDownScriptsForCode(message.keyCode)
+      } else if (message.type === "keyup") {
+        console.log('received keyup', {message})
       }
     };
   });
@@ -155,22 +273,6 @@ function Widget() {
       stroke={"#E6E6E6"}
     >
       <Plus nodeToScripts={nodeIdToScripts}/>
-      <SVG src={playButton} width={50} height={50}
-      onClick={() => {
-          nodeIdToScripts.entries().forEach((entry) => {
-            const nodeId = entry[0]
-            const scripts = entry[1]
-            scripts.forEach(script => {
-              if (script.triggers.includes(TriggerEventType.FrameUpdate)) {
-                executeScript(script)
-              }
-            })
-          });
-      }}/>
-      <SVG src={playButton} width={50} height={50}
-      onClick={() => {
-          console.log('running script!')
-      }}/>
       <SVG
         src={nodeAdd}
         width={50}
@@ -208,7 +310,7 @@ function Widget() {
         onClick={() => {
           return new Promise((resolve) => {
             figma.showUI(playPanelHtml, {
-              visible: false,
+              // visible: false,
             });
           });
         }}

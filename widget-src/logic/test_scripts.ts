@@ -1,14 +1,14 @@
 import { FunctionName } from "./functions";
-import { Script, ScriptBlock, TriggerEventType } from "./script";
+import { Script, ScriptBlock, TriggerEvent, TriggerEventType } from "./script";
 
 const horizontalMoveBlock = new ScriptBlock({
     onExecute: FunctionName.MoveHorizontal,
-    args: {"delta": 100}
+    args: {"delta": 5}
 })
 
 const verticalMoveBlock = new ScriptBlock({
     onExecute: FunctionName.MoveVertical,
-    args: {"delta": -100}
+    args: {"delta": -5}
 })
 
 const logBlock = new ScriptBlock({
@@ -24,7 +24,9 @@ export class TestScript extends Script {
                 verticalMoveBlock,
                 logBlock
             ],
-            triggers: [TriggerEventType.FrameUpdate],
+            triggers: [
+                new TriggerEvent({type: TriggerEventType.FrameUpdate})
+            ],
             aliases: new Map(),
             variables: {}
         })
