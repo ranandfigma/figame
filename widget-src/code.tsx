@@ -1,19 +1,59 @@
 // This is a counter widget with buttons to increment and decrement the number.
 
 import nodeAdd from "./assets/svg/node-add";
-import { ScriptBlock } from "./assets/logic/script";
+import { executeScript, ScriptBlock, TriggerEventType } from "./logic/script";
 import playButton from "./assets/svg/play-button";
 import editPanelHtml from "./embedded_ui/dist/edit_panel/index.html";
 import playPanelHtml from "./embedded_ui/dist/play_panel/index.html";
+import scriptPanelHtml from "./embedded_ui/dist/script_panel/index.html";
 import { WidgetToUiMessageType } from "./messages";
 import { defaultNodeState, NodeState } from "./node";
 import { FPS } from "./consts";
+import { Script } from "./logic/script";
+import { TestScript } from "./logic/test_scripts";
+import plus_symbol from "./assets/svg/plus_symbol";
+import { initFunctionMap } from "./logic/functions";
 
 const { widget } = figma;
-const { AutoLayout, SVG, useEffect, useSyncedMap } = widget;
+const { AutoLayout, SVG, useEffect, useSyncedMap, useSyncedState } = widget;
+
+function Plus({
+  nodeToScripts: nodeIdToScripts
+}: {
+  nodeToScripts: SyncedMap<Script[]>
+}): SVG {
+  return <SVG
+      src={plus_symbol}
+      width={50} height={50}
+      onClick={() => {
+        return new Promise((resolve) => {
+          // Currently opens script panel but doesn't do anything with it.
+          // Promise only really adds a test script for the selected node
+          figma.showUI(scriptPanelHtml); 
+          const currSelection = figma.currentPage.selection
+          if (currSelection.length < 1) {
+            console.log("Nothing selected to add script to")
+          }
+          else if (currSelection.length > 1) {
+            console.log("More than 1 item selected")
+          }
+          else {
+            const node = currSelection[0]
+            console.log("Adding to node", node.id)
+            if (!nodeIdToScripts.get(node.id)) {
+              console.log("Adding upTestScript for node", node.id)
+              nodeIdToScripts.set(node.id, [new TestScript(node.id)])
+            }
+          }
+        })
+      }}/>
+}
 
 function Widget() {
+  initFunctionMap()
   const nodeStateById = useSyncedMap<NodeState>("nodeState");
+  const [movableShapes, setMovableShapes] = useSyncedState<string[]>('movableShape', []);
+  const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
 
   useEffect(() => {
     figma.ui.onmessage = (message) => {
@@ -56,6 +96,19 @@ function Widget() {
       fill={"#FFFFFF"}
       stroke={"#E6E6E6"}
     >
+      <Plus nodeToScripts={nodeIdToScripts}/>
+      <SVG src={playButton} width={50} height={50}
+      onClick={() => {
+          nodeIdToScripts.entries().forEach((entry) => {
+            const nodeId = entry[0]
+            const scripts = entry[1]
+            scripts.forEach(script => {
+              if (script.triggers.includes(TriggerEventType.FrameUpdate)) {
+                executeScript(script)
+              }
+            })
+          });
+      }}/>
       <SVG src={playButton} width={50} height={50}
       onClick={() => {
           console.log('running script!')

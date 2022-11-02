@@ -1,13 +1,17 @@
+import { FunctionName, functionNameToImplMap } from "./functions"
+
 export enum TriggerEventType {
     FrameUpdate,
     OnCollision,
+    KeyDown,
+    KeyUp,
     Custom
 }
 
 export class TriggerEvent {
     private type: TriggerEventType
     private name: string
-    private value: any
+    private value: object
 
     constructor({
         type,
@@ -16,7 +20,7 @@ export class TriggerEvent {
     }: {
         type: TriggerEventType,
         name: string,
-        value: any
+        value: object
     }) {
         this.type = type
         this.name = name
@@ -25,24 +29,20 @@ export class TriggerEvent {
 }
 
 export class ScriptBlock {
-    private onExecute: Function
+    public onExecute: FunctionName
+    public args: object
     private targetNodeIdMap: Map<string, string[]>
-    private displayName: string
-    private displayColor: string
 
     constructor({
         onExecute,
-        displayName,
-        displayColor
+        args,
     }: {
-        onExecute: Function,
-        displayName: string,
-        displayColor: string
+        onExecute: FunctionName,
+        args: object
     }) {
         this.onExecute = onExecute
+        this.args = args
         this.targetNodeIdMap = new Map()
-        this.displayName = displayName
-        this.displayColor = displayColor
     }
 
     public addTargetNodeId(alias: string, nodeIds: string[]) {
@@ -51,25 +51,37 @@ export class ScriptBlock {
 }
 
 export class Script {
-    private blocks: ScriptBlock[]
-    private triggers: TriggerEventType[]
+    public nodeId?: string
+    public blocks: ScriptBlock[]
+    public triggers: TriggerEventType[]
     private aliases: Map<string, string>
-    private variables: Map<string, string>
+    private variables: object
 
     constructor({
+        nodeId,
         blocks,
         triggers,
         aliases,
         variables
     }: {
+        nodeId?: string
         blocks: ScriptBlock[]
         triggers: TriggerEventType[]
         aliases: Map<string, string>
-        variables: Map<string, string>
+        variables: object
     }) {
+        this.nodeId = nodeId
         this.blocks = blocks
         this.triggers = triggers
         this.aliases = aliases
         this.variables = variables
     }
+}
+
+export function executeScript(script: Script) {
+    script.blocks.forEach(block => {
+        if (functionNameToImplMap.has(block.onExecute)) {
+            functionNameToImplMap.get(block.onExecute)!(block.args, script.nodeId);
+        }
+    })
 }
