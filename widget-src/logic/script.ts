@@ -1,6 +1,10 @@
+import { FunctionName, functionNameToImplMap } from "./functions"
+
 export enum TriggerEventType {
     FrameUpdate,
     OnCollision,
+    KeyDown,
+    KeyUp,
     Custom
 }
 
@@ -25,28 +29,20 @@ export class TriggerEvent {
 }
 
 export class ScriptBlock {
-    public onExecute: string
+    public onExecute: FunctionName
     public args: object
     private targetNodeIdMap: Map<string, string[]>
-    private displayName: string
-    private displayColor: string
 
     constructor({
         onExecute,
         args,
-        displayName,
-        displayColor
     }: {
-        onExecute: string,
+        onExecute: FunctionName,
         args: object
-        displayName: string,
-        displayColor: string
     }) {
         this.onExecute = onExecute
         this.args = args
         this.targetNodeIdMap = new Map()
-        this.displayName = displayName
-        this.displayColor = displayColor
     }
 
     public addTargetNodeId(alias: string, nodeIds: string[]) {
@@ -83,5 +79,9 @@ export class Script {
 }
 
 export function executeScript(script: Script) {
-    script.blocks.forEach(block => new Function("nodeId", "args", block.onExecute)(script.nodeId, block.args))
+    script.blocks.forEach(block => {
+        if (functionNameToImplMap.has(block.onExecute)) {
+            functionNameToImplMap.get(block.onExecute)!(block.args, script.nodeId);
+        }
+    })
 }

@@ -1,24 +1,19 @@
+import { FunctionName } from "./functions";
 import { Script, ScriptBlock, TriggerEventType } from "./script";
 
 const horizontalMoveBlock = new ScriptBlock({
-    onExecute: "figma.getNodeById(nodeId).x += args['amount']",
-    args: {"amount": 5},
-    displayName: "Move horizontally",
-    displayColor: "#FFFFFF"
+    onExecute: FunctionName.MoveHorizontal,
+    args: {"delta": 100}
 })
 
 const verticalMoveBlock = new ScriptBlock({
-    onExecute: "figma.getNodeById(nodeId).y += args['amount']",
-    args: {"amount": 10},
-    displayName: "Move vertically",
-    displayColor: "#FFFFFF"
+    onExecute: FunctionName.MoveVertical,
+    args: {"delta": -100}
 })
 
 const logBlock = new ScriptBlock({
-    onExecute: "console.log(args['value'])",
-    args: {"value": "test2"},
-    displayName: "Move vertically",
-    displayColor: "#FFFFFF"
+    onExecute: FunctionName.Debug,
+    args: {},
 })
 
 export class TestScript extends Script {

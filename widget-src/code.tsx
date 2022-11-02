@@ -10,6 +10,7 @@ import { executeScript, Script, TriggerEventType } from "./logic/script";
 import scriptPanelHtml from "./embedded_ui/dist/script_panel/index.html";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { TestScript } from "./logic/test_scripts";
+import { initFunctionMap } from "./logic/functions";
 
 const { widget } = figma
 const { useSyncedState, useSyncedMap, usePropertyMenu, AutoLayout, Text, SVG, Rectangle } = widget
@@ -77,6 +78,7 @@ function Plus({
 
 
 function Widget() {
+  initFunctionMap()
   const [movableShapes, setMovableShapes] = useSyncedState<string[]>('movableShape', []);
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
 
