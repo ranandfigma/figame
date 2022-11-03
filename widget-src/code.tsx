@@ -165,14 +165,17 @@ function Widget() {
         scripts.forEach(script => {
           script.triggers.forEach((trigger: TriggerEvent) => {
             if (doesTriggerMatch(trigger, TriggerEventType.FrameUpdate)) {
-              executeScript(script)
+              executeScript(script, {
+                gameNode: world.getNodeById(script.nodeId),
+                world: world
+              })
             }
           })
         })
       });
     }
 
-    const runAllKeyDownScriptsForCode = (keyCode: string, world: World) => {
+    const runAllKeyDownScriptsForCode = (keyCode: string) => {
       const keyCodeCondition = [keyCode]
 
       nodeIdToScripts.entries().forEach((entry) => {
@@ -372,7 +375,7 @@ function Widget() {
 
         runAllFrameTriggerScripts()
       } else if (message.type === "keydown") {
-        runAllKeyDownScriptsForCode(message.keyCode, world)
+        runAllKeyDownScriptsForCode(message.keyCode)
       } else if (message.type === "keyup") {
       }
       world.applyPendingUpdates();
