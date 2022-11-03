@@ -147,14 +147,11 @@ function Widget() {
 
   useEffect(() => {
     const runAllFrameTriggerScripts = () => {
-      //console.log('running frame trigger script')
       nodeIdToScripts.entries().forEach((entry) => {
         const scripts = entry[1]
         scripts.forEach(script => {
           script.triggers.forEach((trigger: TriggerEvent) => {
-            //console.log('found a script')
             if (doesTriggerMatch(trigger, TriggerEventType.FrameUpdate)) {
-              //console.log('with the trigger')
               executeScript(script)
             }
           })
@@ -202,7 +199,6 @@ function Widget() {
           node = currSelection[0]
         }
 
-        console.log('RECEIVED SCRIPT', message.scriptBlocks)
         if (node) {
           const uiScriptBlocks: UIScriptBlock[] = JSON.parse(message.scriptBlocks)
           const scriptBlocks: ScriptBlock[] = []
@@ -212,9 +208,7 @@ function Widget() {
               args: block.args
             }))
           }
-
-          console.log({ scriptBlocks, nodeId: node.id })
-
+          
           registerScriptForNodeId(new Script({
             triggers: [new TriggerEvent({type: TriggerEventType.FrameUpdate})],
             aliases: new Map,
@@ -260,8 +254,6 @@ function Widget() {
         }
         figma.closePlugin();
       } else if (message.type === "tick") {
-        //console.log('tick')
-
         for (const [nodeId, nodeState] of nodeStateById.entries()) {
           const node = figma.getNodeById(nodeId);
           const scripts = nodeIdToScripts.get(nodeId);
@@ -330,10 +322,8 @@ function Widget() {
 
         runAllFrameTriggerScripts()
       } else if (message.type === "keydown") {
-        console.log('received keydown', {message})
         runAllKeyDownScriptsForCode(message.keyCode)
       } else if (message.type === "keyup") {
-        console.log('received keyup', {message})
       }
     };
   });
