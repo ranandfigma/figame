@@ -6,6 +6,13 @@ export interface CollisionProperties {
 export interface NodeState {
   id: string;
   version: number;
+  shape?: {
+    type: "FRAME",
+    positionX: number;
+    positionY: number;
+    width: number;
+    height: number;
+  }
   velocityX: number;
   velocityY: number;
   text?: string;
@@ -16,6 +23,8 @@ export interface NodeState {
 
 // TODO: nested object updates.
 export enum StateKey {
+    positionX = 'positionX',
+    positionY = 'positionY',
     velocityX = 'velocityX',
     velocityY = 'velocityY',
     text = 'text',
@@ -63,6 +72,24 @@ export class GameNode {
         const prevState = nodeStateById.get(this.id) || defaultNodeState(this.id);
         for (const update of this.nodeStateUpdates) {
             switch (update.key) {
+            case StateKey.positionX: {
+                    const node = _figma.getNodeById(this.id);
+                    if (node?.type !== "FRAME") {
+                        console.error(`node ${this.id} not type frame`);
+                        break; // out of switch.
+                    }
+                    node.x = update.value;
+                    break;
+                }
+            case StateKey.positionY: {
+                    const node = _figma.getNodeById(this.id);
+                    if (node?.type !== "FRAME") {
+                        console.error(`node ${this.id} not type frame`);
+                        break; // out of switch.
+                    }
+                    node.y = update.value;
+                    break;
+                }
             case StateKey.focus: {
                     const node = _figma.getNodeById(this.id);
                     if (node?.type !== "FRAME") {
@@ -132,8 +159,29 @@ export class World {
     constructor(private figma_: typeof figma, private nodeStateById: SyncedMap<NodeState>, private nodesForUpdate: GameNode[]) {
     }
 
-    getNodeById(nodeId: string): GameNode {
+    private getNodeStateById(nodeId: string): NodeState | undefined {
         let nodeState = this.nodeStateById.get(nodeId) || defaultNodeState(nodeId);
+        const node = this.figma_.getNodeById(nodeId);
+        if (node?.type !== "FRAME") {
+            console.error('got a non-frame node');
+            return;
+        }
+
+        const boxInfo = node.absoluteBoundingBox!;
+        return {
+            ...nodeState,
+            shape: {
+                type: 'FRAME',
+                positionX: node.x,
+                positionY: node.y,
+                height: boxInfo.height,
+                width: boxInfo.width,
+            },
+        };
+    }
+
+    getNodeById(nodeId: string): GameNode {
+        let nodeState = this.getNodeStateById(nodeId)!;
         return new GameNode(nodeId, figma.getNodeById(nodeId)?.name!, nodeState, this);
     }
 
@@ -142,9 +190,7 @@ export class World {
         if (!figNode) {
             throw new Error('no such node');
         }
-        const nodeId = figNode.id;
-        let nodeState = this.nodeStateById.get(nodeId) || defaultNodeState(nodeId);
-        return new GameNode(nodeId, name, nodeState, this);
+        return this.getNodeById(figNode.id);
     }
 
     markNodeForUpdate(gameNode: GameNode) {
