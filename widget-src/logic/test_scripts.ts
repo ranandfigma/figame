@@ -48,7 +48,12 @@ const customInitializeBlock = new ScriptBlock({
                   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
                 }
                 const score = world.getNode('Scoreboard');
+                const score2 = world.getNode('Scoreboard2');
                 score.updateNodeState({
+                    key: 'text',
+                    value: 0,
+                });
+                score2.updateNodeState({
                     key: 'text',
                     value: 0,
                 });
@@ -61,7 +66,7 @@ const customInitializeBlock = new ScriptBlock({
                     key: 'velocityY',
                     value: getRandomInt(50, 150),
                 });
-                const gameFrame = world.getNode('Game');
+                const gameFrame = world.getNode('GameFrame');
                 gameFrame.updateNodeState({
                     key: 'focus',
                     value: true,
@@ -103,10 +108,19 @@ const customBlock = new ScriptBlock({
                         });
                         break;
                     case 'Right':
-                    case 'Left':
                         score.updateNodeState({
                             key: 'text',
                             value: (Number(score.nodeState.text) + 1),
+                        });
+                        gameNode.updateNodeState({
+                            key: 'velocityX',
+                            value: -gameNode.nodeState.velocityX,
+                        });
+                        break;
+                    case 'Left':
+                        score2.updateNodeState({
+                            key: 'text',
+                            value: (Number(score2.nodeState.text) + 1),
                         });
                         gameNode.updateNodeState({
                             key: 'velocityX',
