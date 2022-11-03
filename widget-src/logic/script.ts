@@ -50,15 +50,15 @@ export class Block {
     public text: string;
 
     constructor({
-        blockType,
+        type,
         color,
         text
     }: {
-        blockType: BlockType,
+        type: BlockType,
         color: string,
         text: string
     }) {
-        this.type = blockType
+        this.type = type
         this.color = color
         this.text = text
     }
@@ -79,7 +79,7 @@ export class ConditionBlock extends Block {
         elseBlock?: Block
     }) {
         super({
-            blockType: BlockType.ConditionBlock,
+            type: BlockType.ConditionBlock,
             color: '#fffff', 
             text: "if"
         })
@@ -107,7 +107,7 @@ export class ScriptBlock extends Block {
         text: string
     }) {
         super({
-            blockType: BlockType.ScriptBlock,
+            type: BlockType.ScriptBlock,
             color: color,
             text: text
         })

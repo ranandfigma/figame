@@ -10,7 +10,7 @@ import { WidgetToUiMessageType } from "./messages";
 import { defaultNodeState, GameNode, NodeState } from "./node";
 import { FPS } from "./consts";
 import { Script } from "./logic/script";
-import { CollisionScript, logBlock, testConditionBlock } from "./logic/test_scripts";
+import { CollisionScript, testConditionBlock } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
@@ -63,7 +63,7 @@ function Plus({
                   new ScriptBlock({
                     onExecute: FunctionName.MoveVertical,
                     args: {'delta': 10},
-                    color: "#ffffff",
+                    color: "#FFFFFF",
                     text: "testMoveVertical"
                   })
                 ],
@@ -83,7 +83,7 @@ function Plus({
                   new ScriptBlock({
                     onExecute: FunctionName.MoveVertical,
                     args: {'delta': -10},
-                    color: "#ffffff",
+                    color: "#FFFFFF",
                     text: "testMoveVertical"
                   })
                 ],
@@ -102,7 +102,7 @@ function Plus({
                   new ScriptBlock({
                     onExecute: FunctionName.MoveHorizontal,
                     args: {'delta': -10},
-                    color: "#ffffff",
+                    color: "#FFFFFF",
                     text: "testMoveHorizontal"
                   })
                 ],
@@ -122,7 +122,7 @@ function Plus({
                   new ScriptBlock({
                     onExecute: FunctionName.MoveHorizontal,
                     args: {'delta': 10},
-                    color: "#ffffff",
+                    color: "#FFFFFF",
                     text: "testMoveHorizontal"
                   })
                 ],
