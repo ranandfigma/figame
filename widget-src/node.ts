@@ -19,6 +19,7 @@ export enum StateKey {
     velocityX = 'velocityX',
     velocityY = 'velocityY',
     text = 'text',
+    focus = 'focus',
 }
 
 export interface NodeStateUpdate {
@@ -60,26 +61,37 @@ export class GameNode {
         const prevState = nodeStateById.get(this.id) || defaultNodeState(this.id);
         for (const update of this.nodeStateUpdates) {
             switch (update.key) {
-            case StateKey.text:
-                // TODO: update text in figma if it is a text node.
-                const node = _figma.getNodeById(this.id)
-                if (node?.type !== "FRAME") {
-                    console.error(`node ${this.id} not type frame`);
-                    break; // out of switch.
+            case StateKey.focus: {
+                    const node = _figma.getNodeById(this.id);
+                    if (node?.type !== "FRAME") {
+                        console.error(`node ${this.id} not type frame`);
+                        break; // out of switch.
+                    }
+                    console.log('focusing');
+                    figma.viewport.scrollAndZoomIntoView([node]);
+                    break;
                 }
+            case StateKey.text: {
+                    // TODO: update text in figma if it is a text node.
+                    const node = _figma.getNodeById(this.id)
+                    if (node?.type !== "FRAME") {
+                        console.error(`node ${this.id} not type frame`);
+                        break; // out of switch.
+                    }
 
-                // Find the first text node inside the frame (really bad way,
-                // but can't see a better way to address a node, maybe we
-                // should just use node ids everywhere).
+                    // Find the first text node inside the frame (really bad way,
+                    // but can't see a better way to address a node, maybe we
+                    // should just use node ids everywhere).
 
-                const textNode = node.findOne(n => n.type === "TEXT");
-                if (!textNode) {
-                    console.error(`node ${this.id} does not contain text`);
-                    break; // out of switch.
+                    const textNode = node.findOne(n => n.type === "TEXT");
+                    if (!textNode) {
+                        console.error(`node ${this.id} does not contain text`);
+                        break; // out of switch.
+                    }
+                    (textNode as TextNode).characters = String(update.value);
+                    (prevState as any)[update.key] = update.value; // still update the state for later access.
+                    break;
                 }
-                (textNode as TextNode).characters = String(update.value);
-                (prevState as any)[update.key] = update.value; // still update the state for later access.
-                break;
             default:
                 (prevState as any)[update.key] = update.value;
                 break;
