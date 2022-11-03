@@ -62,7 +62,7 @@ export class ScriptBlock {
 }
 
 export class Script {
-    public nodeId?: string
+    public nodeId: string
     public blocks: ScriptBlock[]
     public triggers: TriggerEvent[]
     private aliases: Map<string, string>
@@ -75,7 +75,7 @@ export class Script {
         aliases,
         variables
     }: {
-        nodeId?: string
+        nodeId: string
         blocks: ScriptBlock[]
         triggers: TriggerEvent[]
         aliases: Map<string, string>
