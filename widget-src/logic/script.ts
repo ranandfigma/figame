@@ -124,8 +124,8 @@ export class ScriptBlock extends Block {
 }
 
 export class Script {
-    public nodeId?: string
-    public blocks: Block[]
+    public nodeId: string
+    public blocks: ScriptBlock[]
     public triggers: TriggerEvent[]
     private aliases: Map<string, string>
     private variables: object
@@ -137,8 +137,8 @@ export class Script {
         aliases,
         variables
     }: {
-        nodeId?: string
-        blocks: Block[]
+        nodeId: string
+        blocks: ScriptBlock[]
         triggers: TriggerEvent[]
         aliases: Map<string, string>
         variables: object

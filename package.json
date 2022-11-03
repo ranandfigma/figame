@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Your Figma widget",
   "scripts": {
-    "build": "./build.mjs",
+    "build": "./build.mjs && cd widget-src/ui && npm run build && cd ../../",
     "tsc": "tsc --noEmit -p widget-src",
     "build-svg": "tsc widget-src/assets/svg/convertor.ts --outDir dist --esModuleInterop",
     "run-svg": "npm run build-svg; node ./dist/convertor.js",

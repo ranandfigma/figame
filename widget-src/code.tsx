@@ -3,9 +3,9 @@
 import nodeAdd from "./assets/svg/node-add";
 import { doesTriggerMatch, executeScript, ScriptBlock, TriggerEvent, TriggerEventType } from "./logic/script";
 import playButton from "./assets/svg/play-button";
-import editPanelHtml from "./embedded_ui/dist/edit_panel/index.html";
-import playPanelHtml from "./embedded_ui/dist/play_panel/index.html";
-import scriptPanelHtml from "./embedded_ui/dist/script_panel/index.html";
+import editPanelHtml from "./deprecated_ui/dist/edit_panel/index.html";
+import playPanelHtml from "./deprecated_ui/dist/play_panel/index.html";
+import scriptPanelHtml from "./iframe/dist/index.html"; //"./embedded_ui/dist/script_panel/index.html";
 import { WidgetToUiMessageType } from "./messages";
 import { defaultNodeState, GameNode, NodeState, World } from "./node";
 import { FPS } from "./consts";
@@ -31,7 +31,10 @@ function Plus({
         return new Promise((resolve) => {
           // Currently opens script panel but doesn't do anything with it.
           // Promise only really adds a test script for the selected node
-          figma.showUI(scriptPanelHtml); 
+          figma.showUI(__html__, {
+            width: 640,
+            height: 480
+          }); 
           const currSelection = figma.currentPage.selection
           if (currSelection.length < 1) {
             console.log("Nothing selected to add script to")
@@ -39,115 +42,121 @@ function Plus({
           else if (currSelection.length > 1) {
             console.log("More than 1 item selected")
           }
-          else {
-            const node = currSelection[0]
-            console.log("Adding to node", node.id)
-            if (!nodeIdToScripts.get(node.id)) {
-                nodeIdToScripts.delete(node.id);
-            }
-              console.log("Adding scripts for node", node.id)
+          // else {
+          //   const node = currSelection[0]
+          //   console.log("Adding to node", node.id)
+          //   if (!nodeIdToScripts.get(node.id)) {
+          //       nodeIdToScripts.delete(node.id);
+          //   }
+          //     console.log("Adding scripts for node", node.id)
 
-              const registerScriptForNodeId = (script: Script, nodeId: string) => {
-                if (nodeIdToScripts.has(nodeId)) {
-                  nodeIdToScripts.set(node.id, [...nodeIdToScripts.get(node.id)!, script])
-                } else {
-                  nodeIdToScripts.set(node.id, [script])
-                }
-              }
+          //     const registerScriptForNodeId = (script: Script, nodeId: string) => {
+          //       if (nodeIdToScripts.has(nodeId)) {
+          //         nodeIdToScripts.set(node.id, [...nodeIdToScripts.get(node.id)!, script])
+          //       } else {
+          //         nodeIdToScripts.set(node.id, [script])
+          //       }
+          //     }
 
-              const arrowDownCondition = ['ArrowDown']
-              const arrowDownScript = new Script({
-                nodeId: node.id,
-                triggers: [new TriggerEvent({
-                  type: TriggerEventType.KeyDown,
-                  conditions: arrowDownCondition
-                })],
-                blocks: [
-                  new ScriptBlock({
-                    onExecute: FunctionName.MoveVertical,
-                    args: {'delta': 10},
-                    color: "#FFFFFF",
-                    text: "testMoveVertical"
-                  })
-                ],
-                aliases: new Map(),
-                variables: {}
-              })
+          //     const arrowDownCondition = ['ArrowDown']
+          //     const arrowDownScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowDownCondition
+          //       })],
+          //       blocks: [
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveVertical,
+          //           args: {'delta': 10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveVertical"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
 
-              const arrowUpCondition = ['ArrowUp']
-              const arrowUpScript = new Script({
-                nodeId: node.id,
-                triggers: [new TriggerEvent({
-                  type: TriggerEventType.KeyDown,
-                  conditions: arrowUpCondition
-                })],
-                blocks: [
-                  new ScriptBlock({
-                    onExecute: FunctionName.MoveVertical,
-                    args: {'delta': -10},
-                    color: "#FFFFFF",
-                    text: "testMoveVertical"
-                  })
-                ],
-                aliases: new Map(),
-                variables: {}
-              })
+          //     const arrowUpCondition = ['ArrowUp']
+          //     const arrowUpScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowUpCondition
+          //       })],
+          //       blocks: [
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveVertical,
+          //           args: {'delta': -10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveVertical"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
-              const arrowLeftCondition = ['ArrowLeft']
-              const arrowLeftScript = new Script({
-                nodeId: node.id,
-                triggers: [new TriggerEvent({
-                  type: TriggerEventType.KeyDown,
-                  conditions: arrowLeftCondition
-                })],
-                blocks: [
-                  new ScriptBlock({
-                    onExecute: FunctionName.MoveHorizontal,
-                    args: {'delta': -10},
-                    color: "#FFFFFF",
-                    text: "testMoveHorizontal"
-                  })
-                ],
-                aliases: new Map(),
-                variables: {}
-              })
+          //     const arrowLeftCondition = ['ArrowLeft']
+          //     const arrowLeftScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowLeftCondition
+          //       })],
+          //       blocks: [
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveHorizontal,
+          //           args: {'delta': -10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveHorizontal"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
-              const arrowRightCondition = ['ArrowRight']
-              const arrowRightScript = new Script({
-                nodeId: node.id,
-                triggers: [new TriggerEvent({
-                  type: TriggerEventType.KeyDown,
-                  conditions: arrowRightCondition
-                })],
-                blocks: [
-                  testConditionBlock,
-                  new ScriptBlock({
-                    onExecute: FunctionName.MoveHorizontal,
-                    args: {'delta': 10},
-                    color: "#FFFFFF",
-                    text: "testMoveHorizontal"
-                  })
-                ],
-                aliases: new Map(),
-                variables: {}
-              })
+          //     const arrowRightCondition = ['ArrowRight']
+          //     const arrowRightScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowRightCondition
+          //       })],
+          //       blocks: [
+          //         testConditionBlock,
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveHorizontal,
+          //           args: {'delta': 10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveHorizontal"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
-              registerScriptForNodeId(arrowDownScript, node.id)
-              registerScriptForNodeId(arrowUpScript, node.id)
-              registerScriptForNodeId(arrowLeftScript, node.id)
-              registerScriptForNodeId(arrowRightScript, node.id)
-              registerScriptForNodeId(new CollisionScript(node.id), node.id);
-              registerScriptForNodeId(new InitializeScript(node.id), node.id);
-        }
+          //     registerScriptForNodeId(arrowDownScript, node.id)
+          //     registerScriptForNodeId(arrowUpScript, node.id)
+          //     registerScriptForNodeId(arrowLeftScript, node.id)
+          //     registerScriptForNodeId(arrowRightScript, node.id)
+          //     registerScriptForNodeId(new CollisionScript(node.id), node.id);
+          //     registerScriptForNodeId(new InitializeScript(node.id), node.id);
+          // }
         })
       }}/>
+}
+
+interface UIScriptBlock {
+  functionName: string;
+  args: any 
 }
 
 function Widget() {
   initFunctionMap()
   const nodeStateById = useSyncedMap<NodeState>("nodeState");
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
+  const world = new World(figma, nodeStateById, []);
 
   useEffect(() => {
     const runAllFrameTriggerScripts = () => {
@@ -178,8 +187,66 @@ function Widget() {
       });
     }
 
+    const registerScriptForNodeId = (script: Script, nodeId: string) => {
+      if (nodeIdToScripts.has(nodeId)) {
+        nodeIdToScripts.set(nodeId, [...nodeIdToScripts.get(nodeId)!, script])
+      } else {
+        nodeIdToScripts.set(nodeId, [script])
+      }
+    }
+
+    const removeScriptsForNodeId = (nodeId: string) => {
+      nodeIdToScripts.delete(nodeId)
+    }
+
     figma.ui.onmessage = (message) => {
-      const world = new World(figma, nodeStateById, []);
+      if (message.type === 'scriptAssign') {
+        let node;
+        const currSelection = figma.currentPage.selection
+        if (currSelection.length < 1) {
+          console.log("Nothing selected to add script to")
+        }
+        else if (currSelection.length > 1) {
+          console.log("More than 1 item selected")
+        } else {
+          node = currSelection[0]
+        }
+
+        if (node) {
+          const uiScriptBlocks: UIScriptBlock[] = JSON.parse(message.scriptBlocks)
+          const scriptBlocks: ScriptBlock[] = []
+          for (const block of uiScriptBlocks) {
+            scriptBlocks.push(new ScriptBlock({
+              onExecute: block.functionName as FunctionName,
+              args: block.args
+            }))
+          }
+          
+          registerScriptForNodeId(new Script({
+            triggers: [new TriggerEvent({type: TriggerEventType.FrameUpdate})],
+            aliases: new Map,
+            variables: [],
+            blocks: scriptBlocks,
+            nodeId: node.id
+          }), node.id)
+        }
+      }
+      if (message.type === 'scriptRemove') {
+        let node;
+        const currSelection = figma.currentPage.selection
+        if (currSelection.length < 1) {
+          console.log("Nothing selected to add script to")
+        }
+        else if (currSelection.length > 1) {
+          console.log("More than 1 item selected")
+        } else {
+          node = currSelection[0]
+        }
+
+        if (node) {
+          removeScriptsForNodeId(node.id)
+        }
+      }
       if (message.type === "nodeUpdate") {
         const node = figma.getNodeById(message.nodeId);
         const nodeType = node?.type;
@@ -276,10 +343,8 @@ function Widget() {
 
         runAllFrameTriggerScripts()
       } else if (message.type === "keydown") {
-        console.log('received keydown', {message})
         runAllKeyDownScriptsForCode(message.keyCode)
       } else if (message.type === "keyup") {
-        console.log('received keyup', {message})
       }
       world.applyPendingUpdates();
     };
@@ -315,7 +380,10 @@ function Widget() {
             }
             console.log("node state", nodeState);
 
-            figma.showUI(editPanelHtml);
+            figma.showUI(__html__, {
+              width: 640,
+              height: 480
+            });
             figma.ui.postMessage({
               type: WidgetToUiMessageType.NodeState,
               body: {
@@ -338,8 +406,13 @@ function Widget() {
             family: "Inter", style: "Regular"
         });
           return new Promise((resolve) => {
-            figma.showUI(playPanelHtml, {
-              // visible: false,
+            figma.showUI(__html__, {
+              width: 640,
+              height: 480
+            });
+
+            figma.ui.postMessage({
+              type: 'play'
             });
           });
         }}
