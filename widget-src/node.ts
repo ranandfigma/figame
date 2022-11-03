@@ -9,9 +9,9 @@ export interface NodeState {
   velocityX: number;
   velocityY: number;
   text?: string;
+  textOpacity?: number; // HACK: should be more generic later
   collisionProps?: CollisionProperties;
 }
-
 
 
 // TODO: nested object updates.
@@ -19,6 +19,7 @@ export enum StateKey {
     velocityX = 'velocityX',
     velocityY = 'velocityY',
     text = 'text',
+    textOpacity = 'textOpacity',
     focus = 'focus',
 }
 
@@ -34,6 +35,7 @@ export const defaultNodeState = (id: string): NodeState => {
     velocityX: 0,
     velocityY: 0,
     text: '0',
+    textOpacity: 100
   };
 };
 
@@ -92,6 +94,26 @@ export class GameNode {
                     (prevState as any)[update.key] = update.value; // still update the state for later access.
                     break;
                 }
+            case StateKey.textOpacity: {
+                const node = _figma.getNodeById(this.id)
+                if (node?.type !== "FRAME") {
+                    console.error(`node ${this.id} not type frame`);
+                    break; // out of switch.
+                }
+
+                // Find the first text node inside the frame (really bad way,
+                // but can't see a better way to address a node, maybe we
+                // should just use node ids everywhere).
+
+                const textNode = node.findOne(n => n.type === "TEXT");
+                if (!textNode) {
+                    console.error(`node ${this.id} does not contain text`);
+                    break; // out of switch.
+                }
+                (textNode as TextNode).opacity = update.value
+                (prevState as any)[update.key] = update.value; // still update the state for later access.
+                break;
+            }
             default:
                 (prevState as any)[update.key] = update.value;
                 break;

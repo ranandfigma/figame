@@ -3,9 +3,6 @@
 import nodeAdd from "./assets/svg/node-add";
 import { doesTriggerMatch, executeScript, ScriptBlock, TriggerEvent, TriggerEventType } from "./logic/script";
 import playButton from "./assets/svg/play-button";
-import editPanelHtml from "./deprecated_ui/dist/edit_panel/index.html";
-import playPanelHtml from "./deprecated_ui/dist/play_panel/index.html";
-import scriptPanelHtml from "./iframe/dist/index.html"; //"./embedded_ui/dist/script_panel/index.html";
 import { WidgetToUiMessageType } from "./messages";
 import { defaultNodeState, GameNode, NodeState, World } from "./node";
 import { FPS } from "./consts";
