@@ -61,6 +61,11 @@ const customInitializeBlock = new ScriptBlock({
                     key: 'velocityY',
                     value: getRandomInt(50, 150),
                 });
+                const gameFrame = world.getNode('Game');
+                gameFrame.updateNodeState({
+                    key: 'focus',
+                    value: true,
+                });
             }
         `,
     },
