@@ -111,6 +111,7 @@ const customBlock = new ScriptBlock({
 export class TestScript extends Script {
     constructor(nodeId: string) {
         super({
+            nodeId: nodeId,
             blocks: [
                 horizontalMoveBlock,
                 verticalMoveBlock,
@@ -122,7 +123,6 @@ export class TestScript extends Script {
             aliases: new Map(),
             variables: {}
         })
-        this.nodeId = nodeId
     }
 }
 
@@ -130,6 +130,7 @@ export class TestScript extends Script {
 export class CollisionScript extends Script {
     constructor(nodeId: string) {
         super({
+            nodeId: nodeId,
             blocks: [
                 customBlock,
             ],
@@ -139,13 +140,13 @@ export class CollisionScript extends Script {
             aliases: new Map(),
             variables: {},
         })
-        this.nodeId = nodeId;
     }
 }
 
 export class InitializeScript extends Script {
     constructor(nodeId: string) { 
         super({
+            nodeId: nodeId,
             blocks: [
                 customInitializeBlock,
             ],
@@ -155,6 +156,5 @@ export class InitializeScript extends Script {
             aliases: new Map(),
             variables: {},
         })
-        this.nodeId = nodeId;
     }
 }
