@@ -1,7 +1,8 @@
-import { GameNode } from "../node";
+import { GameNode, World } from "../node";
 
 export type Context = {
     gameNode: GameNode;
+    world: World;
     collisionContext?: {
         otherNodeId: string;
     }

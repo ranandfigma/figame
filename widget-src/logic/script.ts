@@ -7,6 +7,7 @@ export enum BlockType {
 
 export enum TriggerEventType {
     FrameUpdate,
+    GameStart,
     OnCollision,
     KeyDown,
     KeyUp,

@@ -7,10 +7,10 @@ import editPanelHtml from "./embedded_ui/dist/edit_panel/index.html";
 import playPanelHtml from "./embedded_ui/dist/play_panel/index.html";
 import scriptPanelHtml from "./embedded_ui/dist/script_panel/index.html";
 import { WidgetToUiMessageType } from "./messages";
-import { defaultNodeState, GameNode, NodeState } from "./node";
+import { defaultNodeState, GameNode, NodeState, World } from "./node";
 import { FPS } from "./consts";
 import { Script } from "./logic/script";
-import { CollisionScript, testConditionBlock } from "./logic/test_scripts";
+import { CollisionScript, InitializeScript, testConditionBlock, TestScript } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
@@ -26,7 +26,8 @@ function Plus({
   return <SVG
       src={plus_symbol}
       width={50} height={50}
-      onClick={() => {
+      onClick={async () => {
+
         return new Promise((resolve) => {
           // Currently opens script panel but doesn't do anything with it.
           // Promise only really adds a test script for the selected node
@@ -42,6 +43,8 @@ function Plus({
             const node = currSelection[0]
             console.log("Adding to node", node.id)
             if (!nodeIdToScripts.get(node.id)) {
+                nodeIdToScripts.delete(node.id);
+            }
               console.log("Adding scripts for node", node.id)
 
               const registerScriptForNodeId = (script: Script, nodeId: string) => {
@@ -135,8 +138,8 @@ function Plus({
               registerScriptForNodeId(arrowLeftScript, node.id)
               registerScriptForNodeId(arrowRightScript, node.id)
               registerScriptForNodeId(new CollisionScript(node.id), node.id);
-            }
-          }
+              registerScriptForNodeId(new InitializeScript(node.id), node.id);
+        }
         })
       }}/>
 }
@@ -176,8 +179,16 @@ function Widget() {
     }
 
     figma.ui.onmessage = (message) => {
+      const world = new World(figma, nodeStateById, []);
       if (message.type === "nodeUpdate") {
         const node = figma.getNodeById(message.nodeId);
+        const nodeType = node?.type;
+        switch(nodeType) {
+            case "FRAME":
+                break;
+            default: 
+                console.error("invalid node type");
+        }
         if (node?.type === "FRAME") {
           // TODO: handle deleted nodes, nodes edited by other users (only one user per node edit for now with version number tracking).
           const prevState = nodeStateById.get(node.id);
@@ -195,6 +206,24 @@ function Widget() {
           console.error("not a frame");
         }
         figma.closePlugin();
+      } else if (message.type === "gameInit") {
+          const gameInitScripts = nodeIdToScripts.entries().flatMap(([_, scripts]) => scripts).filter(script => script.triggers.find(trigger => trigger.type === TriggerEventType.GameStart))
+          for (const script of gameInitScripts) {
+              console.log(`Running game init script ${script.blocks}`);
+              const nodeId = script.nodeId!;
+              const node = figma.getNodeById(nodeId);
+              if (!node) {
+                  console.error(`no node with id ${nodeId}`);
+                  continue;
+              }
+
+              const nodeState = nodeStateById.get(node.id) || defaultNodeState(node.id);
+              const gameNode = new GameNode(node.id, node.name, nodeState, world);
+              executeScript(script, {
+                  gameNode,
+                  world,
+              })
+          }
       } else if (message.type === "tick") {
         for (const [nodeId, nodeState] of nodeStateById.entries()) {
           const node = figma.getNodeById(nodeId);
@@ -231,23 +260,16 @@ function Widget() {
                 if (!inCollision) {
                     continue;
                 }
-
-                const gameNode = new GameNode(node.id, node.name, prevState);
+                const gameNode = new GameNode(node.id, node.name, prevState, world);
                 for (const collisionScript of collisionScripts) {
                     executeScript(collisionScript, {
                         gameNode,
+                        world,
                         collisionContext: {
                             otherNodeId,
                         },
                     });
                 }
-                const nodeUpdates = gameNode.getNodeUpdates();
-                for (const update of nodeUpdates) {
-                    (prevState as any)[update.key] = update.value;
-                }
-                console.log('updates', nodeUpdates);
-                nodeStateById.set(node.id, prevState);
-                gameNode.clearNodeUpdates();
               }
           }
         }
@@ -259,6 +281,7 @@ function Widget() {
       } else if (message.type === "keyup") {
         console.log('received keyup', {message})
       }
+      world.applyPendingUpdates();
     };
   });
 
@@ -306,7 +329,14 @@ function Widget() {
         src={playButton}
         width={50}
         height={50}
-        onClick={() => {
+        onClick={async () => {
+
+
+        // hardcode what fonts are available for now.
+        console.log('loading fonts');
+        await figma.loadFontAsync({
+            family: "Inter", style: "Regular"
+        });
           return new Promise((resolve) => {
             figma.showUI(playPanelHtml, {
               // visible: false,
