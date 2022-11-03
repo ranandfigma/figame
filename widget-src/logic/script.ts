@@ -129,25 +129,29 @@ export class Script {
     public triggers: TriggerEvent[]
     private aliases: Map<string, string>
     private variables: object
+    public name: string;
 
     constructor({
         nodeId,
         blocks,
         triggers,
         aliases,
-        variables
+        variables,
+        name
     }: {
         nodeId: string
         blocks: ScriptBlock[]
         triggers: TriggerEvent[]
         aliases: Map<string, string>
         variables: object
+        name: string
     }) {
         this.nodeId = nodeId
         this.blocks = blocks
         this.triggers = triggers
         this.aliases = aliases
         this.variables = variables
+        this.name = name
     }
 }
 

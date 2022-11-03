@@ -8,17 +8,39 @@ declare function require(path: string): any;
 const App = ({}) => {
     const [view, setView] = React.useState<'script' | 'play'>('script');
     const [gameLoopId, setGameLoopId] = React.useState<number>();
+    const [nodeSelectListenerId, setNodeSelectListenerId] = React.useState<number>();
+    const [selectedNodeScripts, setSelectedNodeScripts] = React.useState<string[] | undefined>([]);
 
     React.useMemo(() => {
         let keyCodeDown: string | undefined;
 
+        const nodeSelectListener = setInterval(() => {
+            parent.postMessage({pluginMessage: {type: 'get-node'}}, '*');
+        }, 100);
+        setNodeSelectListenerId(nodeSelectListener);
+
         addEventListener('message', (event) => {
+            if (event.data.pluginMessage.type === 'node-info') {
+                if (event.data.pluginMessage.isNodeSelected === false) {
+                    setSelectedNodeScripts(undefined);
+                } else if (!event.data.pluginMessage.scripts) {
+                    setSelectedNodeScripts([]);
+                } else {
+                    setSelectedNodeScripts(event.data.pluginMessage.scripts.map((script: any) => script.name) || []);
+                }
+            }
+
             if (event.data.pluginMessage.type === 'script') {
                 setView('script');
                 document.onkeydown = () => {};
                 document.onkeyup = () => {};
                 clearInterval(gameLoopId);
                 setGameLoopId(undefined);
+
+                const nodeSelectListener2 = setInterval(() => {
+                    parent.postMessage({pluginMessage: {type: 'get-node'}}, '*');
+                }, 100);
+                setNodeSelectListenerId(nodeSelectListener2);
             }
             if (event.data.pluginMessage.type === 'stop') {
                 setView('script');
@@ -29,6 +51,10 @@ const App = ({}) => {
             }
             if (event.data.pluginMessage.type === 'play') {
                 setView('play');
+
+                clearInterval(nodeSelectListenerId);
+                setNodeSelectListenerId(undefined);
+
                 document.onkeydown = (e: KeyboardEvent) => {
                     keyCodeDown = e.key;
                 };
@@ -58,7 +84,7 @@ const App = ({}) => {
 
     return (
         <div>
-            {view === 'script' && <ScriptPanel />}
+            {view === 'script' && <ScriptPanel selectedNodeScripts={selectedNodeScripts} />}
             {view === 'play' && <PlayPanel />}
         </div>
     );

@@ -101,6 +101,26 @@ function Widget() {
     console.log('setting up message handler')
 
     figma.ui.onmessage = (message) => {
+      if (message.type === 'get-node') {
+        let node;
+        const currSelection = figma.currentPage.selection
+        if (currSelection.length < 1) {
+          // console.log("Nothing selected to add script to")
+        }
+        else if (currSelection.length > 1) {
+          // console.log("More than 1 item selected")
+        } else {
+          node = currSelection[0]
+        }
+
+        if (node) {
+          figma.ui.postMessage({
+            type: 'node-info',
+            scripts: nodeIdToScripts.get(node.id),
+            isNodeSelected: node !== undefined
+          })
+        }
+      }
       if (message.type === 'scriptAssign') {
         console.log('got scriptassign message')
 
@@ -139,7 +159,8 @@ function Widget() {
             aliases: new Map,
             variables: [],
             blocks: scriptBlocks,
-            nodeId: node.id
+            nodeId: node.id,
+            name: message.scriptName
           }), node.id)
         }
       }
