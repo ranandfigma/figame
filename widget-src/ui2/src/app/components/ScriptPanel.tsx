@@ -177,7 +177,7 @@ export const ScriptPanel = () => {
                                     type: 'scriptAssign',
                                     scriptBlocks: JSON.stringify(scriptBlocks),
                                     triggerEventType: trigger,
-                                    keyCode: keyCode !== '' ? keyCode : undefined,
+                                    keyCode: trigger === 'key-down' ? keyCode : undefined,
                                 },
                             },
                             '*'
