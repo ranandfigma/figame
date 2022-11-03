@@ -25,7 +25,7 @@ export const initFunctionMap = () => {
     functionNameToImplMap.set(
         FunctionName.MoveHorizontal,
         (args: any, nodeId: string = '') => {
-            const delta = args['delta'] || 0
+            const delta = parseInt(args['delta']) || 0
 
             if (figma && figma.getNodeById(nodeId) && (figma.getNodeById(nodeId) as unknown as any).x) {
                 (figma.getNodeById(nodeId) as unknown as any).x += delta
@@ -36,7 +36,7 @@ export const initFunctionMap = () => {
     functionNameToImplMap.set(
         FunctionName.MoveVertical,
         (args: any, nodeId: string = '') => {
-            const delta = args['delta'] || 0
+            const delta = parseInt(args['delta']) || 0
 
             if (figma && figma.getNodeById(nodeId) && (figma.getNodeById(nodeId) as unknown as any).x) {
                 (figma.getNodeById(nodeId) as unknown as any).y += delta

@@ -204,7 +204,6 @@ function Widget() {
     console.log('setting up message handler')
 
     figma.ui.onmessage = (message) => {
-      console.log({ message })
       if (message.type === 'scriptAssign') {
         console.log('got scriptassign message')
 
@@ -233,8 +232,13 @@ function Widget() {
             }))
           }
           
+          let conditions: string[] | undefined;
+          if (message.keyCode) {
+            conditions = [message.keyCode]
+          }
+
           registerScriptForNodeId(new Script({
-            triggers: [new TriggerEvent({type: TriggerEventType.FrameUpdate})],
+            triggers: [new TriggerEvent({type: message.triggerEventType as TriggerEventType, conditions})],
             aliases: new Map,
             variables: [],
             blocks: scriptBlocks,

@@ -19,10 +19,12 @@ export const ScriptPanel = () => {
     const [activeOption, setActiveOption] = React.useState<string>('');
     const [trigger, setTrigger] = React.useState<string>('frame-update');
     const [keyCode, setKeyCode] = React.useState<string>('ArrowUp');
+    const [fieldValue, setFieldValue] = React.useState<string>('');
 
     const options = [
         <ScriptOption displayName="Move Vertical" displayColor="#ccc" functionName="move-vertical" />,
         <ScriptOption displayName="Move Horizontal" displayColor="#ccc" functionName="move-horizontal" />,
+        <ScriptOption displayName="Custom" displayColor="#ccc" functionName="custom" />,
         <ScriptOption displayName="Move Debug" displayColor="#ccc" functionName="debug" />,
     ];
 
@@ -30,6 +32,7 @@ export const ScriptPanel = () => {
         {value: 'Every Frame', label: 'frame-update'},
         {value: 'On Collision', label: 'on-collision'},
         {value: 'On Key Press', label: 'key-down'},
+        {value: 'Game Start', label: 'game-start'},
     ];
 
     const keyCodeOptions = [
@@ -46,11 +49,8 @@ export const ScriptPanel = () => {
                     <div
                         style={{margin: '4px', cursor: 'pointer'}}
                         onClick={() => {
+                            setFieldValue('');
                             setActiveOption(option.props.functionName);
-                            setScriptBlocks([
-                                ...scriptBlocks,
-                                {functionName: option.props.functionName, args: {delta: 5}},
-                            ]);
                         }}
                     >
                         {option}
@@ -59,6 +59,29 @@ export const ScriptPanel = () => {
             })}
             <div>
                 {activeOption}
+                <div>
+                    {(activeOption === 'move-vertical' || activeOption === 'move-horizontal') && (
+                        <div>
+                            Set Delta:{' '}
+                            <input
+                                type="text"
+                                onChange={(e) => {
+                                    setFieldValue(e.target.value);
+                                }}
+                            />
+                        </div>
+                    )}
+                    {activeOption === 'custom' && (
+                        <div>
+                            Custom JS:{' '}
+                            <textarea
+                                onChange={(e) => {
+                                    setFieldValue(e.target.value);
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
                 <div>
                     Trigger:
                     <Select
@@ -84,6 +107,21 @@ export const ScriptPanel = () => {
                         />
                     </div>
                 )}
+                <div
+                    style={{margin: '4px', cursor: 'pointer', border: '1px solid black', padding: '4px'}}
+                    onClick={() => {
+                        const args = {};
+                        if (activeOption === 'custom') {
+                            args['js'] = fieldValue;
+                        } else if (activeOption === 'move-horizontal' || activeOption === 'move-vertical') {
+                            args['delta'] = fieldValue;
+                        }
+
+                        setScriptBlocks([...scriptBlocks, {functionName: activeOption, args}]);
+                    }}
+                >
+                    ADD SCRIPT BLOCK
+                </div>
             </div>
             <div style={{margin: '4px', padding: '4px', border: '1px solid black'}}>
                 Script Blocks:
@@ -104,13 +142,6 @@ export const ScriptPanel = () => {
                 <div
                     style={{margin: '4px', cursor: 'pointer', border: '1px solid black', padding: '4px'}}
                     onClick={() => {
-                        console.log('posting message');
-                        console.log({
-                            type: 'scriptAssign',
-                            scriptBlocks: JSON.stringify(scriptBlocks),
-                            triggerEventType: trigger,
-                            keyCode: keyCode !== '' ? keyCode : undefined,
-                        });
                         parent.postMessage(
                             {
                                 pluginMessage: {
