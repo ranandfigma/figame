@@ -131,6 +131,11 @@ export class World {
     constructor(private figma_: typeof figma, private nodeStateById: SyncedMap<NodeState>, private nodesForUpdate: GameNode[]) {
     }
 
+    getNodeById(nodeId: string): GameNode {
+        let nodeState = this.nodeStateById.get(nodeId) || defaultNodeState(nodeId);
+        return new GameNode(nodeId, figma.getNodeById(nodeId)?.name!, nodeState, this);
+    }
+
     getNode(name: string): GameNode {
         const figNode = this.figma_.currentPage.findOne(n => n.name === name);// TODO: optimize: https://www.figma.com/plugin-docs/api/properties/nodes-findone/
         if (!figNode) {

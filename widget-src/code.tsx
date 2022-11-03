@@ -10,7 +10,7 @@ import { Script } from "./logic/script";
 import { CollisionScript, InitializeScript, testConditionBlock, TestScript } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import pause from "./assets/svg/pause";
-import { FunctionName, initFunctionMap } from "./logic/functions";
+import { Context, FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
 
 const { widget } = figma;
@@ -172,7 +172,7 @@ function Widget() {
       });
     }
 
-    const runAllKeyDownScriptsForCode = (keyCode: string) => {
+    const runAllKeyDownScriptsForCode = (keyCode: string, world: World) => {
       const keyCodeCondition = [keyCode]
 
       nodeIdToScripts.entries().forEach((entry) => {
@@ -180,7 +180,10 @@ function Widget() {
         scripts.forEach(script => {
           script.triggers.forEach((trigger) => {
             if (doesTriggerMatch(trigger, TriggerEventType.KeyDown, keyCodeCondition)) {
-              executeScript(script)
+              executeScript(script, {
+                gameNode: world.getNodeById(script.nodeId),
+                world: world
+              })
             }
           })
         })
@@ -369,7 +372,7 @@ function Widget() {
 
         runAllFrameTriggerScripts()
       } else if (message.type === "keydown") {
-        runAllKeyDownScriptsForCode(message.keyCode)
+        runAllKeyDownScriptsForCode(message.keyCode, world)
       } else if (message.type === "keyup") {
       }
       world.applyPendingUpdates();
