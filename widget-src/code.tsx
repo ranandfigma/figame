@@ -218,7 +218,9 @@ function Widget() {
           for (const block of uiScriptBlocks) {
             scriptBlocks.push(new ScriptBlock({
               onExecute: block.functionName as FunctionName,
-              args: block.args
+              args: block.args,
+              color: '#FFFFFF',
+              text: '',
             }))
           }
           
@@ -360,6 +362,7 @@ function Widget() {
       stroke={"#E6E6E6"}
     >
       <Plus nodeToScripts={nodeIdToScripts}/>
+      {/*
       <SVG
         src={nodeAdd}
         width={50}
@@ -392,7 +395,7 @@ function Widget() {
             });
           });
         }}
-      />
+      />*/}
       <SVG
         src={playButton}
         width={50}
