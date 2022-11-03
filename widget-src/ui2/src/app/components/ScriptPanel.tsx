@@ -16,13 +16,14 @@ export interface ScriptBlock {
 //     }
 // }
 
-export const ScriptPanel = () => {
+export const ScriptPanel = ({selectedNodeScripts}: {selectedNodeScripts?: string[]}) => {
     const [scriptBlocks, setScriptBlocks] = React.useState<ScriptBlock[]>([]);
     const [activeOption, setActiveOption] = React.useState<string>('');
     const [trigger, setTrigger] = React.useState<string>('frame-update');
     const [keyCode, setKeyCode] = React.useState<string>('ArrowUp');
     const [fieldValue, setFieldValue] = React.useState<string>('');
     const [canCollide, setCanCollide] = React.useState<boolean>();
+    const [scriptName, setScriptName] = React.useState<string>();
 
     const options = [
         <ScriptOption displayName="Move Vertical" displayColor="#ccc" functionName="move-vertical" />,
@@ -54,9 +55,24 @@ export const ScriptPanel = () => {
         setFieldValue('');
     };
 
+    let headerMessage = <div>No scripts have been attached to this node yet</div>;
+    if (selectedNodeScripts !== undefined) {
+        if (selectedNodeScripts.length === 0) {
+            headerMessage = <div>No scripts have been attached to this node yet</div>;
+        } else if (selectedNodeScripts.length > 0) {
+            headerMessage = (
+                <>
+                    <div>{`This node has ${selectedNodeScripts!.length} scripts attached to it:`}</div>
+                    <div>{selectedNodeScripts!.join(',')}</div>
+                </>
+            );
+        }
+    }
+
     return (
         <div>
-            <div style={{display: 'flex'}}>
+            {headerMessage}
+            <div style={{display: 'flex', marginTop: '16px'}}>
                 <div style={{width: '30%'}}>
                     <div style={{border: '1px solid #666', borderRadius: '6px', padding: '4px'}}>
                         Node Properties:
@@ -78,6 +94,16 @@ export const ScriptPanel = () => {
                         >
                             SET NODE PROPERTIES
                         </div>
+                    </div>
+                    <div>
+                        Script Name:{' '}
+                        <input
+                            onChange={(e) => {
+                                setScriptName(e.currentTarget.value);
+                            }}
+                            type="text"
+                            placeholder="e.g. characterMovement"
+                        />
                     </div>
                     <div style={{marginTop: '8px'}}>
                         Script Trigger:
@@ -197,6 +223,7 @@ export const ScriptPanel = () => {
                     onClick={() => {
                         resetOption();
                         setScriptBlocks([]);
+                        setScriptName('');
                     }}
                 >
                     RESET SCRIPTBUILDER
@@ -217,6 +244,7 @@ export const ScriptPanel = () => {
                                     scriptBlocks: JSON.stringify(scriptBlocks),
                                     triggerEventType: trigger,
                                     keyCode: trigger === 'key-down' ? keyCode : undefined,
+                                    scriptName,
                                 },
                             },
                             '*'
@@ -224,6 +252,7 @@ export const ScriptPanel = () => {
 
                         resetOption();
                         setScriptBlocks([]);
+                        setScriptName('');
                     }}
                 >
                     ADD SCRIPT TO SELECTED NODE
