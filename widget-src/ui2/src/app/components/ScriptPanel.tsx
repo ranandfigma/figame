@@ -20,6 +20,7 @@ export const ScriptPanel = () => {
     const [trigger, setTrigger] = React.useState<string>('frame-update');
     const [keyCode, setKeyCode] = React.useState<string>('ArrowUp');
     const [fieldValue, setFieldValue] = React.useState<string>('');
+    const [canCollide, setCanCollide] = React.useState<boolean>();
 
     const options = [
         <ScriptOption displayName="Move Vertical" displayColor="#ccc" functionName="move-vertical" />,
@@ -44,6 +45,18 @@ export const ScriptPanel = () => {
 
     return (
         <div>
+            <div>
+                Can Node Collide?
+                <input type="checkbox" onChange={(e) => setCanCollide(e.target.checked)} />
+                <div
+                    style={{margin: '4px', cursor: 'pointer', border: '1px solid black', padding: '4px'}}
+                    onClick={() => {
+                        parent.postMessage({pluginMessage: {type: 'nodeUpdate', canCollide}}, '*');
+                    }}
+                >
+                    SET COLLISION STATUS
+                </div>
+            </div>
             {options.map((option) => {
                 return (
                     <div

@@ -263,7 +263,17 @@ function Widget() {
         }
       }
       if (message.type === "nodeUpdate") {
-        const node = figma.getNodeById(message.nodeId);
+        let node;
+        const currSelection = figma.currentPage.selection
+        if (currSelection.length < 1) {
+          console.log("Nothing selected to add script to")
+        }
+        else if (currSelection.length > 1) {
+          console.log("More than 1 item selected")
+        } else {
+          node = currSelection[0]
+        }
+
         const nodeType = node?.type;
         switch(nodeType) {
             case "FRAME":
@@ -274,20 +284,21 @@ function Widget() {
         if (node?.type === "FRAME") {
           // TODO: handle deleted nodes, nodes edited by other users (only one user per node edit for now with version number tracking).
           const prevState = nodeStateById.get(node.id);
+          console.log('setting canCollide to', message.canCollide)
           nodeStateById.set(node.id, {
             id: node.id,
             version: (prevState?.version || 0) + 1,
             velocityX: message.velocityX,
             velocityY: message.velocityY,
             collisionProps: {
-                canCollide: true,
+                canCollide: message.canCollide,
                 static: false,
             }
           });
         } else {
           console.error("not a frame");
         }
-        figma.closePlugin();
+        // figma.closePlugin();
       } else if (message.type === "gameInit") {
           const gameInitScripts = nodeIdToScripts.entries().flatMap(([_, scripts]) => scripts).filter(script => script.triggers.find(trigger => trigger.type === TriggerEventType.GameStart))
           for (const script of gameInitScripts) {
