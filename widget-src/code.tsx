@@ -10,7 +10,7 @@ import { WidgetToUiMessageType } from "./messages";
 import { defaultNodeState, GameNode, NodeState } from "./node";
 import { FPS } from "./consts";
 import { Script } from "./logic/script";
-import { CollisionScript, logBlock } from "./logic/test_scripts";
+import { CollisionScript, logBlock, testConditionBlock } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
@@ -50,7 +50,6 @@ function Plus({
                 } else {
                   nodeIdToScripts.set(node.id, [script])
                 }
-                console.log(nodeIdToScripts.get(nodeId));
               }
 
               const arrowDownCondition = ['ArrowDown']
@@ -61,7 +60,6 @@ function Plus({
                   conditions: arrowDownCondition
                 })],
                 blocks: [
-                  logBlock,
                   new ScriptBlock({
                     onExecute: FunctionName.MoveVertical,
                     args: {'delta': 10},
@@ -82,7 +80,6 @@ function Plus({
                   conditions: arrowUpCondition
                 })],
                 blocks: [
-                  logBlock,
                   new ScriptBlock({
                     onExecute: FunctionName.MoveVertical,
                     args: {'delta': -10},
@@ -121,6 +118,7 @@ function Plus({
                   conditions: arrowRightCondition
                 })],
                 blocks: [
+                  testConditionBlock,
                   new ScriptBlock({
                     onExecute: FunctionName.MoveHorizontal,
                     args: {'delta': 10},

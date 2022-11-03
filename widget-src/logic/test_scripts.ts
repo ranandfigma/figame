@@ -1,5 +1,5 @@
 import { FunctionName } from "./functions";
-import { IfBlock, Script, ScriptBlock, TriggerEvent, TriggerEventType } from "./script";
+import { ConditionBlock, Script, ScriptBlock, TriggerEvent, TriggerEventType } from "./script";
 
 const horizontalMoveBlock = new ScriptBlock({
     color: "#FFFFFF",
@@ -15,16 +15,21 @@ const verticalMoveBlock = new ScriptBlock({
     args: {"delta": -5}
 })
 
-export const logBlock = new ScriptBlock({
+const logBlock = new ScriptBlock({
     color: "#FFFFFF",
     text: "Log",
     onExecute: FunctionName.Debug,
     args: {},
 })
 
-const testIfBlock = new IfBlock({
-    condition: "node.",
-    ifBlock: logBlock
+export const testConditionBlock = new ConditionBlock({
+    condition: `
+        (nodeId, context) => {
+            return figma.getNodeById(nodeId).x > 60;
+        }
+    `,
+    ifBlock: logBlock,
+    elseBlock: verticalMoveBlock
 })
 
 const customBlock = new ScriptBlock({

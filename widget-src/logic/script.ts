@@ -1,5 +1,10 @@
 import { Context, FunctionName, functionNameToImplMap } from "./functions"
 
+export enum BlockType {
+    ConditionBlock,
+    ScriptBlock
+}
+
 export enum TriggerEventType {
     FrameUpdate,
     OnCollision,
@@ -40,22 +45,26 @@ export const doesTriggerMatch = (trigger: TriggerEvent, type: TriggerEventType, 
 }
 
 export class Block {
+    public type: BlockType;
     public color: string;
     public text: string;
 
     constructor({
+        blockType,
         color,
         text
     }: {
+        blockType: BlockType,
         color: string,
         text: string
     }) {
+        this.type = blockType
         this.color = color
         this.text = text
     }
 }
 
-export class IfBlock extends Block {
+export class ConditionBlock extends Block {
     public condition: string
     public ifBlock: Block
     public elseBlock?: Block
@@ -70,6 +79,7 @@ export class IfBlock extends Block {
         elseBlock?: Block
     }) {
         super({
+            blockType: BlockType.ConditionBlock,
             color: '#fffff', 
             text: "if"
         })
@@ -97,6 +107,7 @@ export class ScriptBlock extends Block {
         text: string
     }) {
         super({
+            blockType: BlockType.ScriptBlock,
             color: color,
             text: text
         })
@@ -146,20 +157,22 @@ export function executeScript(script: Script, context?: Context) {
 }
 
 export function executeBlock(block: Block, nodeId?: string, context?: Context) {
-    if (block instanceof IfBlock) {
-        if (eval(block.condition)) {
-            executeBlock(block.ifBlock)
-        } else if (block.elseBlock) {
-            executeBlock(block.elseBlock)
+    if (block.type === BlockType.ConditionBlock) {
+        const conditionBlock = block as ConditionBlock;
+        if ((0, eval)(conditionBlock.condition)(nodeId, context)) {
+            executeBlock(conditionBlock.ifBlock, nodeId, context);
+        } else if (conditionBlock.elseBlock) {
+            executeBlock(conditionBlock.elseBlock, nodeId, context);
         }
     }
 
-    if (block instanceof ScriptBlock) {
-        if (block.onExecute === FunctionName.Custom) {
-            const fn = (0, eval)(block.args.js);
+    if (block.type === BlockType.ScriptBlock) {
+        const scriptBlock = block as ScriptBlock;
+        if (scriptBlock.onExecute === FunctionName.Custom) {
+            const fn = (0, eval)(scriptBlock.args.js);
             fn(nodeId, context);
-        } else if (functionNameToImplMap.has(block.onExecute)) {
-            functionNameToImplMap.get(block.onExecute)!(block.args, nodeId, context);
+        } else if (functionNameToImplMap.has(scriptBlock.onExecute)) {
+            functionNameToImplMap.get(scriptBlock.onExecute)!(scriptBlock.args, nodeId, context);
         }  
     }
 }
