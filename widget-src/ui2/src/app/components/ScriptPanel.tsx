@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {ScriptOption} from './ScriptOption';
 import Select from 'react-select';
+import CodeEditor from '@uiw/react-textarea-code-editor';
 
 interface ScriptBlock {
     functionName: string;
@@ -91,7 +92,18 @@ export const ScriptPanel = () => {
                     {activeOption === 'custom' && (
                         <div>
                             Custom JS:{' '}
-                            <textarea
+                            <CodeEditor
+                                value={fieldValue}
+                                language="js"
+                                placeholder="Please enter a JS function like `(nodeId, context) => {}`"
+                                padding={15}
+                                minHeight={150}
+                                style={{
+                                    fontSize: 12,
+                                    backgroundColor: '#f5f5f5',
+                                    fontFamily:
+                                        'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                                }}
                                 onChange={(e) => {
                                     setFieldValue(e.target.value);
                                 }}
