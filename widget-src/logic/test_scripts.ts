@@ -32,6 +32,40 @@ export const testConditionBlock = new ConditionBlock({
     elseBlock: verticalMoveBlock
 })
 
+const customInitializeBlock = new ScriptBlock({
+    onExecute: FunctionName.Custom,
+    color: '#FFFFFF',
+    text: 'Custom',
+    args: {
+        js: `
+            (nodeId, context) => {
+                // One of the drawbacks of the current scripting setup is lack of a cohesive dev story here (libraries, common files etc.).
+                
+                const world = context.world;
+                function getRandomInt(min, max) {
+                  min = Math.ceil(min);
+                  max = Math.floor(max);
+                  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+                }
+                const score = world.getNode('score');
+                score.updateNodeState({
+                    key: 'text',
+                    value: 0,
+                });
+                const ball = world.getNode('ball');
+                ball.updateNodeState({
+                    key: 'velocityX',
+                    value: getRandomInt(50, 150),
+                });
+                ball.updateNodeState({
+                    key: 'velocityY',
+                    value: getRandomInt(50, 150),
+                });
+            }
+        `,
+    },
+});
+
 const customBlock = new ScriptBlock({
     color: "#FFFFFF",
     text: "Custom",
@@ -39,16 +73,21 @@ const customBlock = new ScriptBlock({
     args: {
         js: `
             (nodeId, context) => {
-                console.log('collision handler');
-                const otherNodeId = context.collisionContext.otherNodeId;
+                const otherNodeId = context.collisionContext?.otherNodeId;
                 const otherNode = figma.getNodeById(otherNodeId);
                 const gameNode = context.gameNode;
+                const world = context.world;
+                const score = world.getNode('score');
                 switch (otherNode.name) {
                     case 'Top':
                     case 'Bottom':
                         gameNode.updateNodeState({
                             key: 'velocityY',
                             value: -gameNode.nodeState.velocityY,
+                        });
+                        score.updateNodeState({
+                            key: 'text',
+                            value: (Number(score.nodeState.text) + 1),
                         });
                         break;
                     case 'Right':
@@ -82,14 +121,31 @@ export class TestScript extends Script {
     }
 }
 
+
 export class CollisionScript extends Script {
     constructor(nodeId: string) {
         super({
             blocks: [
                 customBlock,
             ],
-            triggers: [ 
+            triggers: [
                 new TriggerEvent({type: TriggerEventType.OnCollision})
+            ],
+            aliases: new Map(),
+            variables: {},
+        })
+        this.nodeId = nodeId;
+    }
+}
+
+export class InitializeScript extends Script {
+    constructor(nodeId: string) { 
+        super({
+            blocks: [
+                customInitializeBlock,
+            ],
+            triggers: [
+                new TriggerEvent({type: TriggerEventType.GameStart})
             ],
             aliases: new Map(),
             variables: {},
