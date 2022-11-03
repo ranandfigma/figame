@@ -39,7 +39,48 @@ export const doesTriggerMatch = (trigger: TriggerEvent, type: TriggerEventType, 
     return true
 }
 
-export class ScriptBlock {
+export class Block {
+    public color: string;
+    public text: string;
+
+    constructor({
+        color,
+        text
+    }: {
+        color: string,
+        text: string
+    }) {
+        this.color = color
+        this.text = text
+    }
+}
+
+export class IfBlock extends Block {
+    public condition: string
+    public ifBlock: Block
+    public elseBlock?: Block
+
+    constructor({
+        condition,
+        ifBlock,
+        elseBlock
+    }: {
+        condition: string
+        ifBlock: Block
+        elseBlock?: Block
+    }) {
+        super({
+            color: '#fffff', 
+            text: "if"
+        })
+
+        this.condition = condition
+        this.ifBlock = ifBlock
+        this.elseBlock = elseBlock
+    }
+}
+
+export class ScriptBlock extends Block {
     public onExecute: FunctionName
     public args: any;
     private targetNodeIdMap: Map<string, string[]>
@@ -47,10 +88,19 @@ export class ScriptBlock {
     constructor({
         onExecute,
         args,
+        color,
+        text
     }: {
         onExecute: FunctionName,
-        args: object
+        args: object,
+        color: string,
+        text: string
     }) {
+        super({
+            color: color,
+            text: text
+        })
+
         this.onExecute = onExecute
         this.args = args
         this.targetNodeIdMap = new Map()
@@ -63,7 +113,7 @@ export class ScriptBlock {
 
 export class Script {
     public nodeId?: string
-    public blocks: ScriptBlock[]
+    public blocks: Block[]
     public triggers: TriggerEvent[]
     private aliases: Map<string, string>
     private variables: object
@@ -76,7 +126,7 @@ export class Script {
         variables
     }: {
         nodeId?: string
-        blocks: ScriptBlock[]
+        blocks: Block[]
         triggers: TriggerEvent[]
         aliases: Map<string, string>
         variables: object
@@ -91,11 +141,25 @@ export class Script {
 
 export function executeScript(script: Script, context?: Context) {
     script.blocks.forEach(block => {
+        executeBlock(block, script.nodeId, context)
+    })
+}
+
+export function executeBlock(block: Block, nodeId?: string, context?: Context) {
+    if (block instanceof IfBlock) {
+        if (eval(block.condition)) {
+            executeBlock(block.ifBlock)
+        } else if (block.elseBlock) {
+            executeBlock(block.elseBlock)
+        }
+    }
+
+    if (block instanceof ScriptBlock) {
         if (block.onExecute === FunctionName.Custom) {
             const fn = (0, eval)(block.args.js);
-            fn(script.nodeId, context);
+            fn(nodeId, context);
         } else if (functionNameToImplMap.has(block.onExecute)) {
-            functionNameToImplMap.get(block.onExecute)!(block.args, script.nodeId, context);
-        }     
-    })
+            functionNameToImplMap.get(block.onExecute)!(block.args, nodeId, context);
+        }  
+    }
 }

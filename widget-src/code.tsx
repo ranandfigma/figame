@@ -10,7 +10,7 @@ import { WidgetToUiMessageType } from "./messages";
 import { defaultNodeState, GameNode, NodeState } from "./node";
 import { FPS } from "./consts";
 import { Script } from "./logic/script";
-import { CollisionScript, TestScript } from "./logic/test_scripts";
+import { CollisionScript, logBlock } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
@@ -42,8 +42,7 @@ function Plus({
             const node = currSelection[0]
             console.log("Adding to node", node.id)
             if (!nodeIdToScripts.get(node.id)) {
-              console.log("Adding upTestScript for node", node.id)
-              // nodeIdToScripts.set(node.id, [new TestScript(node.id)])
+              console.log("Adding scripts for node", node.id)
 
               const registerScriptForNodeId = (script: Script, nodeId: string) => {
                 if (nodeIdToScripts.has(nodeId)) {
@@ -51,6 +50,7 @@ function Plus({
                 } else {
                   nodeIdToScripts.set(node.id, [script])
                 }
+                console.log(nodeIdToScripts.get(nodeId));
               }
 
               const arrowDownCondition = ['ArrowDown']
@@ -61,9 +61,12 @@ function Plus({
                   conditions: arrowDownCondition
                 })],
                 blocks: [
+                  logBlock,
                   new ScriptBlock({
                     onExecute: FunctionName.MoveVertical,
-                    args: {'delta': 10}
+                    args: {'delta': 10},
+                    color: "#ffffff",
+                    text: "testMoveVertical"
                   })
                 ],
                 aliases: new Map(),
@@ -79,9 +82,12 @@ function Plus({
                   conditions: arrowUpCondition
                 })],
                 blocks: [
+                  logBlock,
                   new ScriptBlock({
                     onExecute: FunctionName.MoveVertical,
-                    args: {'delta': -10}
+                    args: {'delta': -10},
+                    color: "#ffffff",
+                    text: "testMoveVertical"
                   })
                 ],
                 aliases: new Map(),
@@ -98,7 +104,9 @@ function Plus({
                 blocks: [
                   new ScriptBlock({
                     onExecute: FunctionName.MoveHorizontal,
-                    args: {'delta': -10}
+                    args: {'delta': -10},
+                    color: "#ffffff",
+                    text: "testMoveHorizontal"
                   })
                 ],
                 aliases: new Map(),
@@ -115,7 +123,9 @@ function Plus({
                 blocks: [
                   new ScriptBlock({
                     onExecute: FunctionName.MoveHorizontal,
-                    args: {'delta': 10}
+                    args: {'delta': 10},
+                    color: "#ffffff",
+                    text: "testMoveHorizontal"
                   })
                 ],
                 aliases: new Map(),
