@@ -95,10 +95,6 @@ const customBlock = new ScriptBlock({
                             key: 'velocityY',
                             value: -gameNode.nodeState.velocityY,
                         });
-                        score.updateNodeState({
-                            key: 'text',
-                            value: (Number(score.nodeState.text) + 1),
-                        });
                         break;
                     case 'P1_Paddle':
                     case 'P2_Paddle':
@@ -127,6 +123,27 @@ const customBlock = new ScriptBlock({
                             value: -gameNode.nodeState.velocityX,
                         });
                         break;
+                }
+            }
+        `,
+    }
+});
+
+const scoreBlock = new ScriptBlock({
+    color: "#FFFFFF",
+    text: "Custom",
+    onExecute: FunctionName.Custom,
+    args: {
+        js: `
+            (nodeId, context) => {
+                const world = context.world;
+                const score = context.gameNode;
+                const winScreen = world.getNode('WinScreen');
+                if (Number(score.nodeState.text) >= 5) {
+                    winScreen.updateNodeState({
+                        key: 'textOpacity',
+                        value: 1
+                    });
                 }
             }
         `,
