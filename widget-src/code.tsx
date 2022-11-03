@@ -7,10 +7,10 @@ import editPanelHtml from "./deprecated_ui/dist/edit_panel/index.html";
 import playPanelHtml from "./deprecated_ui/dist/play_panel/index.html";
 import scriptPanelHtml from "./iframe/dist/index.html"; //"./embedded_ui/dist/script_panel/index.html";
 import { WidgetToUiMessageType } from "./messages";
-import { defaultNodeState, NodeState } from "./node";
+import { defaultNodeState, GameNode, NodeState, World } from "./node";
 import { FPS } from "./consts";
 import { Script } from "./logic/script";
-import { TestScript } from "./logic/test_scripts";
+import { CollisionScript, InitializeScript, testConditionBlock, TestScript } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
 import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
@@ -26,7 +26,8 @@ function Plus({
   return <SVG
       src={plus_symbol}
       width={50} height={50}
-      onClick={() => {
+      onClick={async () => {
+
         return new Promise((resolve) => {
           // Currently opens script panel but doesn't do anything with it.
           // Promise only really adds a test script for the selected node
@@ -41,96 +42,107 @@ function Plus({
           else if (currSelection.length > 1) {
             console.log("More than 1 item selected")
           }
-          else {
-            // const node = currSelection[0]
-            // console.log("Adding to node", node.id)
-            // if (!nodeIdToScripts.get(node.id)) {
-            //   console.log("Adding upTestScript for node", node.id)
-            //   // nodeIdToScripts.set(node.id, [new TestScript(node.id)])
+          // else {
+          //   const node = currSelection[0]
+          //   console.log("Adding to node", node.id)
+          //   if (!nodeIdToScripts.get(node.id)) {
+          //       nodeIdToScripts.delete(node.id);
+          //   }
+          //     console.log("Adding scripts for node", node.id)
 
-            //   const registerScriptForNodeId = (script: Script, nodeId: string) => {
-            //     if (nodeIdToScripts.has(nodeId)) {
-            //       nodeIdToScripts.set(node.id, [...nodeIdToScripts.get(node.id)!, script])
-            //     } else {
-            //       nodeIdToScripts.set(node.id, [script])
-            //     }
-            //   }
+          //     const registerScriptForNodeId = (script: Script, nodeId: string) => {
+          //       if (nodeIdToScripts.has(nodeId)) {
+          //         nodeIdToScripts.set(node.id, [...nodeIdToScripts.get(node.id)!, script])
+          //       } else {
+          //         nodeIdToScripts.set(node.id, [script])
+          //       }
+          //     }
 
-            //   const arrowDownCondition = ['ArrowDown']
-            //   const arrowDownScript = new Script({
-            //     nodeId: node.id,
-            //     triggers: [new TriggerEvent({
-            //       type: TriggerEventType.KeyDown,
-            //       conditions: arrowDownCondition
-            //     })],
-            //     blocks: [
-            //       new ScriptBlock({
-            //         onExecute: FunctionName.MoveVertical,
-            //         args: {'delta': 10}
-            //       })
-            //     ],
-            //     aliases: new Map(),
-            //     variables: {}
-            //   })
+          //     const arrowDownCondition = ['ArrowDown']
+          //     const arrowDownScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowDownCondition
+          //       })],
+          //       blocks: [
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveVertical,
+          //           args: {'delta': 10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveVertical"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
 
-            //   const arrowUpCondition = ['ArrowUp']
-            //   const arrowUpScript = new Script({
-            //     nodeId: node.id,
-            //     triggers: [new TriggerEvent({
-            //       type: TriggerEventType.KeyDown,
-            //       conditions: arrowUpCondition
-            //     })],
-            //     blocks: [
-            //       new ScriptBlock({
-            //         onExecute: FunctionName.MoveVertical,
-            //         args: {'delta': -10}
-            //       })
-            //     ],
-            //     aliases: new Map(),
-            //     variables: {}
-            //   })
+          //     const arrowUpCondition = ['ArrowUp']
+          //     const arrowUpScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowUpCondition
+          //       })],
+          //       blocks: [
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveVertical,
+          //           args: {'delta': -10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveVertical"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
-            //   const arrowLeftCondition = ['ArrowLeft']
-            //   const arrowLeftScript = new Script({
-            //     nodeId: node.id,
-            //     triggers: [new TriggerEvent({
-            //       type: TriggerEventType.KeyDown,
-            //       conditions: arrowLeftCondition
-            //     })],
-            //     blocks: [
-            //       new ScriptBlock({
-            //         onExecute: FunctionName.MoveHorizontal,
-            //         args: {'delta': -10}
-            //       })
-            //     ],
-            //     aliases: new Map(),
-            //     variables: {}
-            //   })
+          //     const arrowLeftCondition = ['ArrowLeft']
+          //     const arrowLeftScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowLeftCondition
+          //       })],
+          //       blocks: [
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveHorizontal,
+          //           args: {'delta': -10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveHorizontal"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
-            //   const arrowRightCondition = ['ArrowRight']
-            //   const arrowRightScript = new Script({
-            //     nodeId: node.id,
-            //     triggers: [new TriggerEvent({
-            //       type: TriggerEventType.KeyDown,
-            //       conditions: arrowRightCondition
-            //     })],
-            //     blocks: [
-            //       new ScriptBlock({
-            //         onExecute: FunctionName.MoveHorizontal,
-            //         args: {'delta': 10}
-            //       })
-            //     ],
-            //     aliases: new Map(),
-            //     variables: {}
-            //   })
+          //     const arrowRightCondition = ['ArrowRight']
+          //     const arrowRightScript = new Script({
+          //       nodeId: node.id,
+          //       triggers: [new TriggerEvent({
+          //         type: TriggerEventType.KeyDown,
+          //         conditions: arrowRightCondition
+          //       })],
+          //       blocks: [
+          //         testConditionBlock,
+          //         new ScriptBlock({
+          //           onExecute: FunctionName.MoveHorizontal,
+          //           args: {'delta': 10},
+          //           color: "#FFFFFF",
+          //           text: "testMoveHorizontal"
+          //         })
+          //       ],
+          //       aliases: new Map(),
+          //       variables: {}
+          //     })
 
-            //   registerScriptForNodeId(arrowDownScript, node.id)
-            //   registerScriptForNodeId(arrowUpScript, node.id)
-            //   registerScriptForNodeId(arrowLeftScript, node.id)
-            //   registerScriptForNodeId(arrowRightScript, node.id)
-            // }
-          }
+          //     registerScriptForNodeId(arrowDownScript, node.id)
+          //     registerScriptForNodeId(arrowUpScript, node.id)
+          //     registerScriptForNodeId(arrowLeftScript, node.id)
+          //     registerScriptForNodeId(arrowRightScript, node.id)
+          //     registerScriptForNodeId(new CollisionScript(node.id), node.id);
+          //     registerScriptForNodeId(new InitializeScript(node.id), node.id);
+          // }
         })
       }}/>
 }
@@ -144,6 +156,7 @@ function Widget() {
   initFunctionMap()
   const nodeStateById = useSyncedMap<NodeState>("nodeState");
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
+  const world = new World(figma, nodeStateById, []);
 
   useEffect(() => {
     const runAllFrameTriggerScripts = () => {
@@ -236,6 +249,13 @@ function Widget() {
       }
       if (message.type === "nodeUpdate") {
         const node = figma.getNodeById(message.nodeId);
+        const nodeType = node?.type;
+        switch(nodeType) {
+            case "FRAME":
+                break;
+            default: 
+                console.error("invalid node type");
+        }
         if (node?.type === "FRAME") {
           // TODO: handle deleted nodes, nodes edited by other users (only one user per node edit for now with version number tracking).
           const prevState = nodeStateById.get(node.id);
@@ -253,10 +273,29 @@ function Widget() {
           console.error("not a frame");
         }
         figma.closePlugin();
+      } else if (message.type === "gameInit") {
+          const gameInitScripts = nodeIdToScripts.entries().flatMap(([_, scripts]) => scripts).filter(script => script.triggers.find(trigger => trigger.type === TriggerEventType.GameStart))
+          for (const script of gameInitScripts) {
+              console.log(`Running game init script ${script.blocks}`);
+              const nodeId = script.nodeId!;
+              const node = figma.getNodeById(nodeId);
+              if (!node) {
+                  console.error(`no node with id ${nodeId}`);
+                  continue;
+              }
+
+              const nodeState = nodeStateById.get(node.id) || defaultNodeState(node.id);
+              const gameNode = new GameNode(node.id, node.name, nodeState, world);
+              executeScript(script, {
+                  gameNode,
+                  world,
+              })
+          }
       } else if (message.type === "tick") {
         for (const [nodeId, nodeState] of nodeStateById.entries()) {
           const node = figma.getNodeById(nodeId);
           const scripts = nodeIdToScripts.get(nodeId);
+          const collisionScripts = scripts?.filter((s) => s.triggers.find(t => t.type === TriggerEventType.OnCollision)) || [];
           if (node?.type !== "FRAME") {
             console.error("non frame object in nodes");
             return;
@@ -264,8 +303,7 @@ function Widget() {
           node.x += nodeState.velocityX / FPS;
           node.y += nodeState.velocityY / FPS;
 
-          if (nodeState.collisionProps?.canCollide) {
-              // turn a different color depending on the CollisionState.
+          if (nodeState.collisionProps?.canCollide && collisionScripts.length) {
               // do a pairwise comparison against every other node to see if we are in collision.
               const nodeRect = AxisAlignedGameRectangle.fromFrameNode(node);
 
@@ -289,33 +327,16 @@ function Widget() {
                 if (!inCollision) {
                     continue;
                 }
-
-                scripts?.filter((s) => {
-                  s.triggers.forEach((trigger) => {
-                    if (doesTriggerMatch(trigger, TriggerEventType.OnCollision)) {
-                      executeScript(s)
-                    }
-                  })
-                });
-
-                let velocityX_new = prevState.velocityX;
-                let velocityY_new = prevState.velocityY;
-                switch (otherNode.name) {
-                    case 'Top':
-                    case 'Bottom':
-                        velocityY_new = -velocityY_new;
-                        break;
-                    case 'Right':
-                    case 'Left':
-                        velocityX_new = -velocityX_new;
-                        break;
+                const gameNode = new GameNode(node.id, node.name, prevState, world);
+                for (const collisionScript of collisionScripts) {
+                    executeScript(collisionScript, {
+                        gameNode,
+                        world,
+                        collisionContext: {
+                            otherNodeId,
+                        },
+                    });
                 }
-
-                nodeStateById.set(node.id, {
-                        ...prevState,
-                        velocityX: velocityX_new,
-                        velocityY: velocityY_new,
-                        });
               }
           }
         }
@@ -325,6 +346,7 @@ function Widget() {
         runAllKeyDownScriptsForCode(message.keyCode)
       } else if (message.type === "keyup") {
       }
+      world.applyPendingUpdates();
     };
   });
 
@@ -375,7 +397,14 @@ function Widget() {
         src={playButton}
         width={50}
         height={50}
-        onClick={() => {
+        onClick={async () => {
+
+
+        // hardcode what fonts are available for now.
+        console.log('loading fonts');
+        await figma.loadFontAsync({
+            family: "Inter", style: "Regular"
+        });
           return new Promise((resolve) => {
             figma.showUI(__html__, {
               width: 640,
