@@ -47,12 +47,12 @@ const customInitializeBlock = new ScriptBlock({
                   max = Math.floor(max);
                   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
                 }
-                const score = world.getNode('score');
+                const score = world.getNode('Scoreboard');
                 score.updateNodeState({
                     key: 'text',
                     value: 0,
                 });
-                const ball = world.getNode('ball');
+                const ball = world.getNode('Ball');
                 ball.updateNodeState({
                     key: 'velocityX',
                     value: getRandomInt(50, 150),
@@ -82,7 +82,7 @@ const customBlock = new ScriptBlock({
                 const otherNode = figma.getNodeById(otherNodeId);
                 const gameNode = context.gameNode;
                 const world = context.world;
-                const score = world.getNode('score');
+                const score = world.getNode('Scoreboard');
                 switch (otherNode.name) {
                     case 'Top':
                     case 'Bottom':
@@ -95,8 +95,19 @@ const customBlock = new ScriptBlock({
                             value: (Number(score.nodeState.text) + 1),
                         });
                         break;
+                    case 'P1_Paddle':
+                    case 'P2_Paddle':
+                        gameNode.updateNodeState({
+                            key: 'velocityX',
+                            value: -gameNode.nodeState.velocityX,
+                        });
+                        break;
                     case 'Right':
                     case 'Left':
+                        score.updateNodeState({
+                            key: 'text',
+                            value: (Number(score.nodeState.text) + 1),
+                        });
                         gameNode.updateNodeState({
                             key: 'velocityX',
                             value: -gameNode.nodeState.velocityX,

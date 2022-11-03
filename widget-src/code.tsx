@@ -158,6 +158,8 @@ function Widget() {
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
   const world = new World(figma, nodeStateById, []);
 
+  console.log('render widget')
+
   useEffect(() => {
     const runAllFrameTriggerScripts = () => {
       nodeIdToScripts.entries().forEach((entry) => {
@@ -199,8 +201,12 @@ function Widget() {
       nodeIdToScripts.delete(nodeId)
     }
 
+    console.log('setting up message handler')
+
     figma.ui.onmessage = (message) => {
       if (message.type === 'scriptAssign') {
+        console.log('got scriptassign message')
+
         let node;
         const currSelection = figma.currentPage.selection
         if (currSelection.length < 1) {
@@ -213,6 +219,8 @@ function Widget() {
         }
 
         if (node) {
+          console.log('received script', {message})
+
           const uiScriptBlocks: UIScriptBlock[] = JSON.parse(message.scriptBlocks)
           const scriptBlocks: ScriptBlock[] = []
           for (const block of uiScriptBlocks) {
@@ -224,8 +232,13 @@ function Widget() {
             }))
           }
           
+          let conditions: string[] | undefined;
+          if (message.keyCode) {
+            conditions = [message.keyCode]
+          }
+
           registerScriptForNodeId(new Script({
-            triggers: [new TriggerEvent({type: TriggerEventType.FrameUpdate})],
+            triggers: [new TriggerEvent({type: message.triggerEventType as TriggerEventType, conditions})],
             aliases: new Map,
             variables: [],
             blocks: scriptBlocks,
@@ -250,7 +263,17 @@ function Widget() {
         }
       }
       if (message.type === "nodeUpdate") {
-        const node = figma.getNodeById(message.nodeId);
+        let node;
+        const currSelection = figma.currentPage.selection
+        if (currSelection.length < 1) {
+          console.log("Nothing selected to add script to")
+        }
+        else if (currSelection.length > 1) {
+          console.log("More than 1 item selected")
+        } else {
+          node = currSelection[0]
+        }
+
         const nodeType = node?.type;
         switch(nodeType) {
             case "FRAME":
@@ -261,20 +284,21 @@ function Widget() {
         if (node?.type === "FRAME") {
           // TODO: handle deleted nodes, nodes edited by other users (only one user per node edit for now with version number tracking).
           const prevState = nodeStateById.get(node.id);
+          console.log('setting canCollide to', message.canCollide)
           nodeStateById.set(node.id, {
             id: node.id,
             version: (prevState?.version || 0) + 1,
-            velocityX: message.velocityX,
-            velocityY: message.velocityY,
+            velocityX: message.velocityX || 0,
+            velocityY: message.velocityY || 0,
             collisionProps: {
-                canCollide: true,
+                canCollide: message.canCollide,
                 static: false,
             }
           });
         } else {
           console.error("not a frame");
         }
-        figma.closePlugin();
+        // figma.closePlugin();
       } else if (message.type === "gameInit") {
           const gameInitScripts = nodeIdToScripts.entries().flatMap(([_, scripts]) => scripts).filter(script => script.triggers.find(trigger => trigger.type === TriggerEventType.GameStart))
           for (const script of gameInitScripts) {
@@ -302,8 +326,10 @@ function Widget() {
             console.error("non frame object in nodes");
             return;
           }
-          node.x += nodeState.velocityX / FPS;
-          node.y += nodeState.velocityY / FPS;
+
+
+          node.x += (nodeState.velocityX  || 0) / FPS;
+          node.y += (nodeState.velocityY ||0 ) / FPS;
 
           if (nodeState.collisionProps?.canCollide && collisionScripts.length) {
               // do a pairwise comparison against every other node to see if we are in collision.
