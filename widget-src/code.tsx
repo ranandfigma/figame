@@ -158,6 +158,8 @@ function Widget() {
   const nodeIdToScripts = useSyncedMap<Script[]>('nodeIdToScripts')
   const world = new World(figma, nodeStateById, []);
 
+  console.log('render widget')
+
   useEffect(() => {
     const runAllFrameTriggerScripts = () => {
       nodeIdToScripts.entries().forEach((entry) => {
@@ -199,8 +201,13 @@ function Widget() {
       nodeIdToScripts.delete(nodeId)
     }
 
+    console.log('setting up message handler')
+
     figma.ui.onmessage = (message) => {
+      console.log({ message })
       if (message.type === 'scriptAssign') {
+        console.log('got scriptassign message')
+
         let node;
         const currSelection = figma.currentPage.selection
         if (currSelection.length < 1) {
@@ -213,12 +220,16 @@ function Widget() {
         }
 
         if (node) {
+          console.log('received script', {message})
+
           const uiScriptBlocks: UIScriptBlock[] = JSON.parse(message.scriptBlocks)
           const scriptBlocks: ScriptBlock[] = []
           for (const block of uiScriptBlocks) {
             scriptBlocks.push(new ScriptBlock({
               onExecute: block.functionName as FunctionName,
-              args: block.args
+              args: block.args,
+              color: '',
+              text: ''
             }))
           }
           

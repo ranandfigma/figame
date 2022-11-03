@@ -6,12 +6,12 @@ export enum BlockType {
 }
 
 export enum TriggerEventType {
-    FrameUpdate,
-    GameStart,
-    OnCollision,
-    KeyDown,
-    KeyUp,
-    Custom
+    FrameUpdate = 'frame-update',
+    GameStart = 'game-start',
+    OnCollision = 'on-collision',
+    KeyDown = 'key-down',
+    KeyUp = 'key-up',
+    Custom = 'custom'
 }
 
 export class TriggerEvent {
