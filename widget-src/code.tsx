@@ -288,8 +288,8 @@ function Widget() {
           nodeStateById.set(node.id, {
             id: node.id,
             version: (prevState?.version || 0) + 1,
-            velocityX: message.velocityX,
-            velocityY: message.velocityY,
+            velocityX: message.velocityX || 0,
+            velocityY: message.velocityY || 0,
             collisionProps: {
                 canCollide: message.canCollide,
                 static: false,
@@ -326,8 +326,10 @@ function Widget() {
             console.error("non frame object in nodes");
             return;
           }
-          node.x += nodeState.velocityX / FPS;
-          node.y += nodeState.velocityY / FPS;
+
+
+          node.x += (nodeState.velocityX  || 0) / FPS;
+          node.y += (nodeState.velocityY ||0 ) / FPS;
 
           if (nodeState.collisionProps?.canCollide && collisionScripts.length) {
               // do a pairwise comparison against every other node to see if we are in collision.
