@@ -41,6 +41,10 @@ export const ScriptPanel = () => {
         {value: 'Down Arrow', label: 'ArrowDown'},
         {value: 'Left Arrow', label: 'ArrowLeft'},
         {value: 'Right Arrow', label: 'ArrowRight'},
+        {value: 'W', label: 'w'},
+        {value: 'A', label: 'a'},
+        {value: 'S', label: 's'},
+        {value: 'D', label: 'd'},
     ];
 
     return (

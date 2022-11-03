@@ -12,6 +12,7 @@ import { FPS } from "./consts";
 import { Script } from "./logic/script";
 import { CollisionScript, InitializeScript, testConditionBlock, TestScript } from "./logic/test_scripts";
 import plus_symbol from "./assets/svg/plus_symbol";
+import pause from "./assets/svg/pause";
 import { FunctionName, initFunctionMap } from "./logic/functions";
 import { AxisAlignedGameRectangle } from "./rectangle";
 
@@ -33,7 +34,7 @@ function Plus({
           // Promise only really adds a test script for the selected node
           figma.showUI(__html__, {
             width: 640,
-            height: 480
+            height: 600
           }); 
           const currSelection = figma.currentPage.selection
           if (currSelection.length < 1) {
@@ -437,11 +438,35 @@ function Widget() {
           return new Promise((resolve) => {
             figma.showUI(__html__, {
               width: 640,
-              height: 480
+              height: 600
             });
 
             figma.ui.postMessage({
               type: 'play'
+            });
+          });
+        }}
+      />
+      <SVG
+        src={pause}
+        width={50}
+        height={50}
+        onClick={async () => {
+
+
+        // hardcode what fonts are available for now.
+        console.log('loading fonts');
+        await figma.loadFontAsync({
+            family: "Inter", style: "Regular"
+        });
+          return new Promise((resolve) => {
+            figma.showUI(__html__, {
+              width: 640,
+              height: 600
+            });
+
+            figma.ui.postMessage({
+              type: 'stop'
             });
           });
         }}
