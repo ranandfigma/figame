@@ -1,5 +1,10 @@
 import { Context, FunctionName, functionNameToImplMap } from "./functions"
 
+export enum BlockType {
+    ConditionBlock,
+    ScriptBlock
+}
+
 export enum TriggerEventType {
     FrameUpdate,
     OnCollision,
@@ -39,7 +44,53 @@ export const doesTriggerMatch = (trigger: TriggerEvent, type: TriggerEventType, 
     return true
 }
 
-export class ScriptBlock {
+export class Block {
+    public type: BlockType;
+    public color: string;
+    public text: string;
+
+    constructor({
+        type,
+        color,
+        text
+    }: {
+        type: BlockType,
+        color: string,
+        text: string
+    }) {
+        this.type = type
+        this.color = color
+        this.text = text
+    }
+}
+
+export class ConditionBlock extends Block {
+    public condition: string
+    public ifBlock: Block
+    public elseBlock?: Block
+
+    constructor({
+        condition,
+        ifBlock,
+        elseBlock
+    }: {
+        condition: string
+        ifBlock: Block
+        elseBlock?: Block
+    }) {
+        super({
+            type: BlockType.ConditionBlock,
+            color: '#fffff', 
+            text: "if"
+        })
+
+        this.condition = condition
+        this.ifBlock = ifBlock
+        this.elseBlock = elseBlock
+    }
+}
+
+export class ScriptBlock extends Block {
     public onExecute: FunctionName
     public args: any;
     private targetNodeIdMap: Map<string, string[]>
@@ -47,10 +98,20 @@ export class ScriptBlock {
     constructor({
         onExecute,
         args,
+        color,
+        text
     }: {
         onExecute: FunctionName,
-        args: object
+        args: object,
+        color: string,
+        text: string
     }) {
+        super({
+            type: BlockType.ScriptBlock,
+            color: color,
+            text: text
+        })
+
         this.onExecute = onExecute
         this.args = args
         this.targetNodeIdMap = new Map()
@@ -63,7 +124,7 @@ export class ScriptBlock {
 
 export class Script {
     public nodeId?: string
-    public blocks: ScriptBlock[]
+    public blocks: Block[]
     public triggers: TriggerEvent[]
     private aliases: Map<string, string>
     private variables: object
@@ -76,7 +137,7 @@ export class Script {
         variables
     }: {
         nodeId?: string
-        blocks: ScriptBlock[]
+        blocks: Block[]
         triggers: TriggerEvent[]
         aliases: Map<string, string>
         variables: object
@@ -91,11 +152,27 @@ export class Script {
 
 export function executeScript(script: Script, context?: Context) {
     script.blocks.forEach(block => {
-        if (block.onExecute === FunctionName.Custom) {
-            const fn = (0, eval)(block.args.js);
-            fn(script.nodeId, context);
-        } else if (functionNameToImplMap.has(block.onExecute)) {
-            functionNameToImplMap.get(block.onExecute)!(block.args, script.nodeId, context);
-        }     
+        executeBlock(block, script.nodeId, context)
     })
+}
+
+export function executeBlock(block: Block, nodeId?: string, context?: Context) {
+    if (block.type === BlockType.ConditionBlock) {
+        const conditionBlock = block as ConditionBlock;
+        if ((0, eval)(conditionBlock.condition)(nodeId, context)) {
+            executeBlock(conditionBlock.ifBlock, nodeId, context);
+        } else if (conditionBlock.elseBlock) {
+            executeBlock(conditionBlock.elseBlock, nodeId, context);
+        }
+    }
+
+    if (block.type === BlockType.ScriptBlock) {
+        const scriptBlock = block as ScriptBlock;
+        if (scriptBlock.onExecute === FunctionName.Custom) {
+            const fn = (0, eval)(scriptBlock.args.js);
+            fn(nodeId, context);
+        } else if (functionNameToImplMap.has(scriptBlock.onExecute)) {
+            functionNameToImplMap.get(scriptBlock.onExecute)!(scriptBlock.args, nodeId, context);
+        }  
+    }
 }

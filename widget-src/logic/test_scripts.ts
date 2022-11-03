@@ -1,22 +1,40 @@
 import { FunctionName } from "./functions";
-import { Script, ScriptBlock, TriggerEvent, TriggerEventType } from "./script";
+import { ConditionBlock, Script, ScriptBlock, TriggerEvent, TriggerEventType } from "./script";
 
 const horizontalMoveBlock = new ScriptBlock({
+    color: "#FFFFFF",
+    text: "Move horizontal",
     onExecute: FunctionName.MoveHorizontal,
     args: {"delta": 5}
 })
 
 const verticalMoveBlock = new ScriptBlock({
+    color: "#FFFFFF",
+    text: "Move vertical",
     onExecute: FunctionName.MoveVertical,
     args: {"delta": -5}
 })
 
 const logBlock = new ScriptBlock({
+    color: "#FFFFFF",
+    text: "Log",
     onExecute: FunctionName.Debug,
     args: {},
 })
 
+export const testConditionBlock = new ConditionBlock({
+    condition: `
+        (nodeId, context) => {
+            return figma.getNodeById(nodeId).x > 60;
+        }
+    `,
+    ifBlock: logBlock,
+    elseBlock: verticalMoveBlock
+})
+
 const customBlock = new ScriptBlock({
+    color: "#FFFFFF",
+    text: "Custom",
     onExecute: FunctionName.Custom,
     args: {
         js: `
@@ -70,7 +88,9 @@ export class CollisionScript extends Script {
             blocks: [
                 customBlock,
             ],
-            triggers: [TriggerEventType.OnCollision],
+            triggers: [ 
+                new TriggerEvent({type: TriggerEventType.OnCollision})
+            ],
             aliases: new Map(),
             variables: {},
         })
