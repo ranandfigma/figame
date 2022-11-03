@@ -35,7 +35,7 @@ export const defaultNodeState = (id: string): NodeState => {
     velocityX: 0,
     velocityY: 0,
     text: '0',
-    textOpacity: 100
+    textOpacity: 0
   };
 };
 
@@ -110,7 +110,8 @@ export class GameNode {
                     console.error(`node ${this.id} does not contain text`);
                     break; // out of switch.
                 }
-                (textNode as TextNode).opacity = update.value
+
+                (textNode as TextNode).opacity = Number(update.value);
                 (prevState as any)[update.key] = update.value; // still update the state for later access.
                 break;
             }
