@@ -54,3 +54,124 @@ since `build.mjs` (`npm run build`) takes care of this for you, but here is how 
 - Compile all the index.ts files inside the `embedded_ui` folder to generate javascript
 - Inject the javascript into raw script tags in the HTML file.
 - Stringify the whole thing and place it in `embedded_ui/dist/{ui_name}/index.html.ts`.
+
+## Sample scripts
+
+The scripting logic is pretty rudimentary, but there are quite a few useful things that can be done with it. For example, to build pong, here is a good game-init script (to put in the custom javascript section)
+
+```
+(nodeId, context) => {
+    // One of the drawbacks of the current scripting setup is lack of a cohesive dev story here (libraries, common files etc.).
+
+    const world = context.world;
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+    }
+    const score = world.getNode('Scoreboard');
+    const score2 = world.getNode('Scoreboard2');
+    score.updateNodeState({
+        key: 'text',
+        value: 0,
+    });
+    score2.updateNodeState({
+        key: 'text',
+        value: 0,
+    });
+    const ball = world.getNode('Ball');
+    ball.updateNodeState({
+        key: 'velocityX',
+        value: getRandomInt(50, 150),
+    });
+    ball.updateNodeState({
+        key: 'velocityY',
+        value: getRandomInt(50, 150),
+    });
+    const gameFrame = world.getNode('GameFrame');
+    gameFrame.updateNodeState({
+        key: 'focus',
+        value: true,
+    });
+}
+
+```
+
+and a good collision script for the ball.
+
+```
+
+(nodeId, context) => {
+    const otherNodeId = context.collisionContext?.otherNodeId;
+    const otherNode = figma.getNodeById(otherNodeId);
+    const gameNode = context.gameNode;
+    const world = context.world;
+    const score = world.getNode('Scoreboard');
+    const score2 = world.getNode('Scoreboard2');
+
+    switch (otherNode.name) {
+        case 'Top':
+        case 'Bottom':
+            gameNode.updateNodeState({
+                key: 'velocityY',
+                value: -gameNode.nodeState.velocityY,
+            });
+            break;
+        case 'P1_Paddle':
+        case 'P2_Paddle':
+            gameNode.updateNodeState({
+                key: 'velocityX',
+                value: -gameNode.nodeState.velocityX,
+            });
+            break;
+        case 'Right':
+            score.updateNodeState({
+                key: 'text',
+                value: (Number(score.nodeState.text) + 1),
+            });
+            gameNode.updateNodeState({
+                key: 'velocityX',
+                value: -gameNode.nodeState.velocityX,
+            });
+            break;
+        case 'Left':
+            score2.updateNodeState({
+                key: 'text',
+                value: (Number(score2.nodeState.text) + 1),
+            });
+            gameNode.updateNodeState({
+                key: 'velocityX',
+                value: -gameNode.nodeState.velocityX,
+            });
+            break;
+    }
+}
+```
+
+Note that frames are addressed by names which have to be unique, and error handling is pretty non-existent at the moment.
+
+Here is another script that prevents paddles from going out of bounds of the walls.
+
+```
+(nodeId, context) => {
+  const world = context.world;
+  const node = world.getNodeById(nodeId);
+  const nodeShape = node.nodeState.shape;
+  const otherNodeId = context.collisionContext.otherNodeId;
+  const otherNode = world.getNodeById(otherNodeId);
+  const otherNodeShape = otherNode.nodeState.shape;
+  console.log(otherNodeShape, nodeShape);
+  if (otherNode.name === "Top") {
+    node.updateNodeState({
+      key: 'positionY',
+      value: otherNodeShape.positionY + otherNodeShape.height,
+    });
+  } else if (otherNode.name === "Bottom") {
+    node.updateNodeState({
+      key: 'positionY',
+      value: otherNodeShape.positionY - nodeShape.height,
+    });
+  }
+}
+
+```
